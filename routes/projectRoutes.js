@@ -5,7 +5,7 @@ import mssql from 'mssql';
 
 const router = express.Router();
 
-export default router;
+export { router as default };
 
 // POST /api/login
 router.post('/', async (req, res) => {

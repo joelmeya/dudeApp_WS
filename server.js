@@ -110,8 +110,17 @@ app.get('/dashboard', async (req, res) => {
   }
 });
 
+// Health Check Route
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString() 
+  });
+});
+
 // Start the server
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   await connectToDatabase();
+  console.log('Server is fully initialized and ready to accept connections.');
 });
