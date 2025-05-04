@@ -1,0 +1,70 @@
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>UPHSD DMS</h2>
+        <button class="sidebar-toggle mobile-only">
+            <span class="hamburger-icon">☰</span>
+        </button>
+    </div>
+    
+    <nav class="sidebar-menu">
+        <ul>
+            <li class="<%= activePage === 'dashboard' ? 'active' : '' %>">
+                <a href="/dashboard">
+                    <i class="icon dashboard-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="<%= activePage === 'users' ? 'active' : '' %>">
+                <a href="/users">
+                    <i class="icon users-icon"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li class="<%= activePage === 'documents' ? 'active' : '' %>">
+                <a href="/documents">
+                    <i class="icon documents-icon"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li class="<%= activePage === 'transactions' ? 'active' : '' %>">
+                <a href="/transactions">
+                    <i class="icon transactions-icon"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="<%= activePage === 'logs' ? 'active' : '' %>">
+                <a href="/logs">
+                    <i class="icon logs-icon"></i>
+                    <span>Access Logs</span>
+                </a>
+            </li>
+            <li class="<%= activePage === 'settings' ? 'active' : '' %>">
+                <a href="/settings">
+                    <i class="icon settings-icon"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <div class="user-details">
+                <span class="user-name"><%= user && user.name ? user.name : 'Anonymous User' %></span>
+                <span class="user-email"><%= user && user.email ? user.email : 'user@example.com' %></span>
+                <span class="user-role"><%= user && user.role ? user.role : 'User' %></span>
+            </div>
+        </div>
+        
+        <div class="sidebar-actions">
+            <button id="logout-btn" class="logout-btn">
+                <i class="icon logout-icon"></i>
+                <span>Logout</span>
+            </button>
+            <button class="toggle-theme theme-btn">
+                <i class="icon theme-icon"></i>
+                <span>Theme</span>
+            </button>
+        </div>
+    </div>
+</div>

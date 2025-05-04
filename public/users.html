@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users - DUDE</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 300px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .search-bar button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #5B6EFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Users</h1>
+    <div class="search-bar">
+        <input type="text" placeholder="Search by name, email, etc...">
+        <button>SEARCH</button>
+        <button>ADD USER</button>
+    </div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Position</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        <tr>
+            <td>Joel Eya</td>
+            <td>joeleya@gmail.com</td>
+            <td>IT Manager</td>
+            <td>System Admin</td>
+            <td>Edit</td>
+        </tr>
+        <!-- Add more rows as needed -->
+    </table>
+</body>

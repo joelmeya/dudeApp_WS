@@ -1,0 +1,26 @@
+<div class="dashboard-content">
+    <h1>Dashboard Overview</h1>
+    <div class="welcome-section">
+        <h2>Welcome, <%= user && user.name ? user.name : 'Anonymous User' %></h2>
+        <p>Email: <%= user && user.email ? user.email : 'user@example.com' %></p>
+        <p>Role: <%= user && user.role ? user.role : 'User' %></p>
+    </div>
+    <div class="cards">
+        <div class="card">
+            <div class="card-title">System Admins</div>
+            <div class="card-value"><%= user && user.systemAdmins ? user.systemAdmins : 5 %></div>
+        </div>
+        <div class="card">
+            <div class="card-title">Document Admins</div>
+            <div class="card-value"><%= user && user.documentAdmins ? user.documentAdmins : 24 %></div>
+        </div>
+        <div class="card">
+            <div class="card-title">Total Users</div>
+            <div class="card-value"><%= user && user.totalUsers ? user.totalUsers : 50 %></div>
+        </div>
+        <div class="card">
+            <div class="card-title">Recent Documents</div>
+            <div class="card-value"><%= user && user.recentDocuments ? user.recentDocuments : 12 %></div>
+        </div>
+    </div>
+</div>
