@@ -11,8 +11,9 @@ const config = {
   database: process.env.DB_DATABASE,
   port: parseInt(process.env.DB_PORT),
   options: {
-    encrypt: false, // true if Azure, false for local
-    trustServerCertificate: true, // needed for self-signed certs
+    encrypt: true, // Required for Azure SQL
+    trustServerCertificate: true,
+    enableArithAbort: true
   },
 };
 

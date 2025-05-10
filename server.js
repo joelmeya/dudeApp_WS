@@ -22,14 +22,17 @@ const PORT = process.env.PORT || 3000;
 
 // Secure Session Middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret', // Use env var
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Only secure in production
-    httpOnly: true, // Prevent client-side JS from accessing cookie
-    sameSite: 'strict' // Protect against CSRF
-  }
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax', // Changed to lax for better compatibility
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  },
+  name: 'sessionId', // Custom cookie name
+  rolling: true // Refresh cookie on each request
 }));
 
 // Middleware
