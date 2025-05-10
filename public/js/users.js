@@ -82,10 +82,93 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle form submission
-    addUserForm.addEventListener('submit', function(event) {
+    addUserForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        // Add your form submission logic here
-        // For now, just close the modal
-        closeModal();
+        
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            role: document.getElementById('role').value
+        };
+
+        try {
+            // Submit form data
+            // Show loading state
+            const submitButton = addUserForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Adding...';
+            submitButton.disabled = true;
+
+            const response = await fetch('/users/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            // Reset button state
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+
+            if (result.success) {
+                // Add new user to table
+                const tableBody = document.querySelector('.users-table tbody');
+                const emptyState = tableBody.querySelector('.empty-state');
+                if (emptyState) {
+                    tableBody.innerHTML = ''; // Remove empty state
+                }
+
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>
+                        <div class="user-name-cell">
+                            <span>${result.user.name}</span>
+                        </div>
+                    </td>
+                    <td>${result.user.email}</td>
+                    <td>${result.user.role}</td>
+                    <td>${result.user.status}</td>
+                    <td>${result.user.last_login}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn-icon" title="Edit User" data-user-id="${result.user.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" title="Reset Password" data-user-id="${result.user.id}">
+                                <i class="fas fa-key"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tableBody.insertBefore(newRow, tableBody.firstChild);
+                closeModal();
+                addUserForm.reset();
+
+                // Show success message
+                alert('User added successfully!');
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Error adding user:', error);
+            
+            // Reset button state if we hit an error
+            const submitButton = addUserForm.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Add User';
+            submitButton.disabled = false;
+
+            // Show error message
+            if (error.response) {
+                const result = await error.response.json();
+                alert(result.error || 'Failed to add user. Please try again.');
+            } else {
+                alert('Failed to add user. Please try again.');
+            }
+        }
     });
 });
