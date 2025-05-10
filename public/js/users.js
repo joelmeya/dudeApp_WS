@@ -30,6 +30,39 @@ function closeEditModal() {
     }, 200);
 }
 
+// Update table row with new user data
+function updateTableRow(userId, userData) {
+    const userRow = document.querySelector(`button[data-user-id="${userId}"]`).closest('tr');
+    
+    userRow.innerHTML = `
+        <td>
+            <div class="user-name-cell">
+                <span>${userData.name}</span>
+            </div>
+        </td>
+        <td>${userData.email}</td>
+        <td>${userData.role}</td>
+        <td>${userData.status}</td>
+        <td>${userData.last_login}</td>
+        <td>
+            <div class="table-actions">
+                <button class="btn-icon" title="Edit User" data-user-id="${userData.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon" title="Reset Password" data-user-id="${userData.id}">
+                    <i class="fas fa-key"></i>
+                </button>
+            </div>
+        </td>
+    `;
+
+    // Reattach event listener to new edit button
+    const newEditButton = userRow.querySelector('.btn-icon[title="Edit User"]');
+    newEditButton.addEventListener('click', function() {
+        openEditModal(userData.id);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Edit modal elements
     const editModal = document.getElementById('editUserModal');
@@ -125,6 +158,54 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = this.getAttribute('data-user-id');
             openEditModal(userId);
         });
+    });
+
+    // Handle edit form submission
+    const editUserForm = document.getElementById('editUserForm');
+    editUserForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Show loading state
+        const submitButton = editUserForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitButton.disabled = true;
+
+        try {
+            const userId = document.getElementById('editUserId').value;
+            const formData = {
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                role: document.getElementById('editRole').value,
+                status: document.getElementById('editStatus').value
+            };
+
+            const response = await fetch(`/users/edit/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Update the table row
+                updateTableRow(userId, result.user);
+                closeEditModal();
+                alert('User updated successfully!');
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            alert(error.message || 'Failed to update user. Please try again.');
+        } finally {
+            // Reset button state
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+        }
     });
 
     // Close modal when pressing Escape key
