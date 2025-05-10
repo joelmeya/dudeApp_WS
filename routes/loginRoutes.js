@@ -88,7 +88,8 @@ router.post('/', async (req, res) => {
 
     return res.json({
       message: 'Login successful',
-      user: req.session.user
+      user: req.session.user,
+      redirectUrl: '/dashboard'
     });
   } catch (err) {
     console.error('Login error:', {
