@@ -24,11 +24,14 @@ const PORT = process.env.PORT || 3000;
 // Secure Session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
+  rolling: true,
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax', // Changed to lax for better compatibility
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   },

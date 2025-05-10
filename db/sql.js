@@ -14,14 +14,19 @@ const config = {
     encrypt: true,
     trustServerCertificate: true,
     enableArithAbort: true,
-    requestTimeout: 60000, // Increase timeout to 60 seconds
-    connectionTimeout: 30000, // Connection timeout 30 seconds
+    requestTimeout: 300000, // 5 minutes
+    connectionTimeout: 60000, // 1 minute
     pool: {
       max: 10,
       min: 0,
-      idleTimeoutMillis: 30000
-    }
+      idleTimeoutMillis: 300000, // 5 minutes
+      acquireTimeoutMillis: 60000 // 1 minute
+    },
+    maxRetriesOnTransientErrors: 5,
+    retryIntervalInMilliseconds: 5000
   },
+  stream: false, // Disable streaming for better stability
+  parseJSON: true
 };
 
 async function connectToDatabase() {
