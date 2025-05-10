@@ -54,8 +54,29 @@ app.set('layout extractStyles', true);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke! 😱');
+  console.error('Error details:', {
+    message: err.message,
+    stack: err.stack,
+    code: err.code,
+    state: err.state
+  });
+
+  // Handle SQL connection errors
+  if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEOUT') {
+    return res.status(503).render('error', {
+      message: 'Database connection failed. Please try again later.',
+      error: { status: 503 }
+    });
+  }
+
+  // Handle other errors
+  res.status(500).render('error', {
+    message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message,
+    error: {
+      status: 500,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : ''
+    }
+  });
 });
 
 // Routes
