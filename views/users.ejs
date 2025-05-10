@@ -1,30 +1,110 @@
 <%- contentFor('body') %>
 <div class="users-content">
-    <h1>User Management</h1>
-    <div class="search-bar">
-        <input type="text" placeholder="Search users">
-        <button>Search</button>
-        <button>Add User</button>
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Users</h1>
+            <p class="subtitle">Manage system users and their roles</p>
+        </div>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Joel Eya</td>
-                <td>joeleya@gmail.com</td>
-                <td>System Admin</td>
-                <td>
-                    <button>Edit</button>
-                    <button>Delete</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+
+    <div class="actions-bar">
+        <div class="search-section">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search by name or email" id="searchInput">
+                <button class="btn-primary" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+        <button class="btn-primary" id="addUserBtn">
+            <i class="fas fa-plus"></i> Add New User
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample User Row -->
+                <tr>
+                    <td>
+                        <div class="user-name-cell">
+                            <img src="https://ui-avatars.com/api/?name=Joel+Eya&size=32&background=random" alt="Joel Eya" class="user-avatar-small">
+                            <span>Joel Eya</span>
+                        </div>
+                    </td>
+                    <td>joeleya@gmail.com</td>
+                    <td><span class="role-badge admin">System Admin</span></td>
+                    <td><span class="status-badge active">Active</span></td>
+                    <td>2025-05-10 13:00</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn-icon" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Empty State (hidden by default) -->
+        <div class="empty-state" style="display: none;">
+            <i class="fas fa-users fa-3x"></i>
+            <h3>No Users Found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New User</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">User Role</label>
+                        <select id="role" name="role" required>
+                            <option value="" disabled selected>Select a role</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus-circle"></i> Add User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

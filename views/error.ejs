@@ -1,0 +1,38 @@
+<%- contentFor('body') %>
+<div class="error-container">
+    <h1>Error</h1>
+    <p><%= message %></p>
+    <% if (process.env.NODE_ENV !== 'production' && error) { %>
+        <pre><%= error.stack %></pre>
+    <% } %>
+    <a href="javascript:history.back()" class="btn-primary">Go Back</a>
+</div>
+
+<style>
+.error-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.error-container h1 {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+}
+
+.error-container pre {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: left;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.error-container .btn-primary {
+    display: inline-block;
+    text-decoration: none;
+    margin-top: 1rem;
+}
+</style>

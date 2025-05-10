@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { connectToDatabase } from './db/sql.js';
 import projectRoutes from './routes/projectRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -53,6 +54,7 @@ app.use((err, req, res, next) => {
 // Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/login', loginRoutes);
+app.use('/users', userRoutes);
 
 // Root Route
 app.get('/', (req, res) => {
