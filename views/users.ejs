@@ -79,7 +79,6 @@
             <p>Try adjusting your search or filter criteria</p>
         </div>
     </div>
-
     <!-- Add User Modal -->
     <div class="modal" id="addUserModal" style="display: none;">
         <div class="modal-content">
@@ -113,6 +112,53 @@
                         <button type="button" class="btn-secondary">Cancel</button>
                         <button type="submit" class="btn-primary">
                             <i class="fas fa-plus-circle"></i> Add User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId" name="id">
+                    <div class="form-group">
+                        <label for="editName">Full Name</label>
+                        <input type="text" id="editName" name="name" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email Address</label>
+                        <input type="email" id="editEmail" name="email" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRole">User Role</label>
+                        <select id="editRole" name="role" required>
+                            <option value="system_admin">System Admin</option>
+                            <option value="document_admin">Document Admin</option>
+                            <option value="document_user">Document User</option>
+                            <option value="accreditor">Accreditor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
                     </div>
                 </form>

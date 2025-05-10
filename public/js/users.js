@@ -1,4 +1,40 @@
+// Modal management functions
+function openEditModal(userId) {
+    const editModal = document.getElementById('editUserModal');
+    const userRow = document.querySelector(`button[data-user-id="${userId}"]`).closest('tr');
+    
+    // Get user data from the row
+    const name = userRow.querySelector('.user-name-cell span').textContent;
+    const email = userRow.querySelector('td:nth-child(2)').textContent;
+    const role = userRow.querySelector('td:nth-child(3)').textContent;
+    const status = userRow.querySelector('td:nth-child(4)').textContent;
+
+    // Populate the form
+    document.getElementById('editUserId').value = userId;
+    document.getElementById('editName').value = name;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editRole').value = role.toLowerCase().replace(' ', '_');
+    document.getElementById('editStatus').value = status.toLowerCase();
+
+    // Show modal with animation
+    editModal.style.display = 'block';
+    setTimeout(() => editModal.classList.add('show'), 10);
+}
+
+function closeEditModal() {
+    const editModal = document.getElementById('editUserModal');
+    editModal.classList.remove('show');
+    setTimeout(() => {
+        editModal.style.display = 'none';
+        document.getElementById('editUserForm').reset();
+    }, 200);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Edit modal elements
+    const editModal = document.getElementById('editUserModal');
+    const editModalCloseBtn = editModal.querySelector('.close-modal');
+    const editModalCancelBtn = editModal.querySelector('.btn-secondary');
     // Search functionality
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -67,17 +103,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close modal when clicking cancel button
     modalCancelBtn.addEventListener('click', closeModal);
 
-    // Close modal when clicking outside the modal content
-    addUserModal.addEventListener('click', function(event) {
+    // Edit modal close handlers
+    editModalCloseBtn.addEventListener('click', closeEditModal);
+    editModalCancelBtn.addEventListener('click', closeEditModal);
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        const addUserModal = document.getElementById('addUserModal');
+        const editUserModal = document.getElementById('editUserModal');
+        
         if (event.target === addUserModal) {
             closeModal();
+        } else if (event.target === editUserModal) {
+            closeEditModal();
         }
+    });
+
+    // Add click handlers to edit buttons
+    document.querySelectorAll('.btn-icon[title="Edit User"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            openEditModal(userId);
+        });
     });
 
     // Close modal when pressing Escape key
     document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && addUserModal.style.display === 'block') {
-            closeModal();
+        if (event.key === 'Escape' && (addUserModal.style.display === 'block' || document.getElementById('editUserModal').style.display === 'block')) {
+            if (addUserModal.style.display === 'block') {
+                closeModal();
+            } else {
+                closeEditModal();
+            }
         }
     });
 

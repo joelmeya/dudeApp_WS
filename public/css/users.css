@@ -187,7 +187,7 @@
     }
 }
 
-/* Modal Styles */
+/* Modal Shared Styles */
 .modal {
     display: none;
     position: fixed;
@@ -258,6 +258,29 @@
     padding: 2rem;
 }
 
+/* Edit Modal Specific */
+#editUserModal .modal-content {
+    max-width: 500px;
+}
+
+#editUserModal .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+#editUserModal .form-group select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+#editUserModal .form-group select option {
+    padding: 8px;
+}
+
+/* Form */
 .form-group {
     margin-bottom: 1.5rem;
 }
