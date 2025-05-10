@@ -1,0 +1,223 @@
+<%- contentFor('body') %>
+<div class="content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Document Projects</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary new-project-btn">
+                NEW PROJECT
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-container">
+        <div class="search-inputs">
+            <div class="search-field">
+                <input type="text" placeholder="Search By Project Name" class="form-control">
+            </div>
+            <div class="search-field">
+                <input type="text" placeholder="Search By Document Type" class="form-control">
+            </div>
+            <div class="search-field">
+                <select class="form-control">
+                    <option value="">Search By Status</option>
+                    <option value="FOR REVIEW">For Review</option>
+                    <option value="ONGOING">Ongoing</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+            </div>
+            <div class="search-actions">
+                <button class="btn-search">SEARCH</button>
+                <button class="btn-reset">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Type</th>
+                    <th>Created By</th>
+                    <th>Assignees</th>
+                    <th>Reviewers</th>
+                    <th>Accreditors</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample data row -->
+                <tr>
+                    <td>PACUCOA Document</td>
+                    <td>PACUCOA</td>
+                    <td>Lester Cuadra</td>
+                    <td>Felix Dela Fuente, Gab Mariano</td>
+                    <td>Jehan Punzalan, Ralph Gabriel Mariano</td>
+                    <td>Joel Eya</td>
+                    <td><span class="status-badge for-review">FOR REVIEW</span></td>
+                    <td>
+                        <button class="btn-icon" title="View Details">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ISO Document</td>
+                    <td>ISO</td>
+                    <td>Lester Cuadra</td>
+                    <td>Jehan Punzalan</td>
+                    <td>Felix Dela Fuente</td>
+                    <td>Gab Mariano</td>
+                    <td><span class="status-badge ongoing">ONGOING</span></td>
+                    <td>
+                        <button class="btn-icon" title="View Details">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.content {
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-content h1 {
+    font-size: 1.75rem;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.new-project-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.search-filter-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.search-inputs {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.search-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-search {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-reset {
+    background: #fff;
+    color: #2196F3;
+    border: 1px solid #2196F3;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #eee;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    color: #2c3e50;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.for-review {
+    background: #FFF3E0;
+    color: #FF9800;
+}
+
+.status-badge.ongoing {
+    background: #E3F2FD;
+    color: #2196F3;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #2196F3;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.btn-icon:hover {
+    background: #E3F2FD;
+}
+</style>

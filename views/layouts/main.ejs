@@ -5,11 +5,12 @@
     <title>UPHSD DMS</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/users.css">
+    <link rel="stylesheet" href="/css/documentProjects.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
-        <%- include('../partials/sidebar', { activePage: page }) %>
+        <%- include('../partials/sidebar', { activePage: typeof page !== 'undefined' ? page : '' }) %>
         
         <div class="content-wrapper">
             <%- body %>

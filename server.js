@@ -4,6 +4,7 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './db/sql.js';
 import projectRoutes from './routes/projectRoutes.js';
+import documentProjectsRoutes from './routes/documentProjectsRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import path from 'path';
@@ -47,6 +48,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
 
 
 // Global Error Handler
@@ -56,9 +59,10 @@ app.use((err, req, res, next) => {
 });
 
 // Routes
-app.use('/api/projects', projectRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/users', userRoutes);
+app.use('/documents', documentProjectsRoutes);
+app.use('/projects', projectRoutes);
 
 // Root Route
 app.get('/', (req, res) => {

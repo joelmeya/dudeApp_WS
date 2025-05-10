@@ -23,7 +23,7 @@
             <li class="<%= activePage === 'documents' ? 'active' : '' %>">
                 <a href="/documents">
                     <i class="fas fa-file-alt"></i>
-                    <span>Documents</span>
+                    <span>Document Projects</span>
                 </a>
             </li>
             <li class="<%= activePage === 'transactions' ? 'active' : '' %>">
@@ -50,9 +50,9 @@
     <div class="sidebar-footer">
         <div class="user-profile">
             <div class="user-details">
-                <span class="user-name"><%= user && user.name ? user.name : 'Anonymous User' %></span>
-                <span class="user-email"><%= user && user.email ? user.email : 'user@example.com' %></span>
-                <span class="user-role"><%= user && user.role ? user.role : 'User' %></span>
+                <span class="user-name"><%= typeof user !== 'undefined' && user && user.name ? user.name : 'Anonymous User' %></span>
+                <span class="user-email"><%= typeof user !== 'undefined' && user && user.email ? user.email : 'user@example.com' %></span>
+                <span class="user-role"><%= typeof user !== 'undefined' && user && user.role ? user.role : 'User' %></span>
             </div>
         </div>
         

@@ -1,0 +1,375 @@
+<%- contentFor('body') %>
+<div class="content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Projects</h1>
+            <p class="subtitle">Manage your projects and documentation</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" onclick="openAddModal()">
+                <i class="fas fa-plus"></i> New Project
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search projects...">
+            <button id="searchBtn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="filter-options">
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="archived">Archived</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (projects && projects.length > 0) { %>
+                    <% projects.forEach(project => { %>
+                        <tr>
+                            <td>
+                                <div class="project-name-cell">
+                                    <span><%= project.name %></span>
+                                </div>
+                            </td>
+                            <td><%= project.owner_name %></td>
+                            <td><%= project.status %></td>
+                            <td><%= new Date(project.updated_at).toLocaleString() %></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn-icon" title="Edit Project" data-project-id="<%= project.id %>">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon" title="View Documents" data-project-id="<%= project.id %>">
+                                        <i class="fas fa-folder-open"></i>
+                                    </button>
+                                    <button class="btn-icon" title="Archive Project" data-project-id="<%= project.id %>">
+                                        <i class="fas fa-archive"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" class="no-data">No projects found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Project Modal -->
+    <div class="modal" id="addProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Project</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addProjectForm">
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" id="projectName" name="name" placeholder="Enter project name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Description</label>
+                        <textarea id="projectDescription" name="description" placeholder="Enter project description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectStatus">Status</label>
+                        <select id="projectStatus" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus-circle"></i> Add Project
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div class="modal" id="editProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Project</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editProjectForm">
+                    <input type="hidden" id="editProjectId" name="id">
+                    <div class="form-group">
+                        <label for="editProjectName">Project Name</label>
+                        <input type="text" id="editProjectName" name="name" placeholder="Enter project name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectDescription">Description</label>
+                        <textarea id="editProjectDescription" name="description" placeholder="Enter project description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectStatus">Status</label>
+                        <select id="editProjectStatus" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Projects CSS -->
+<style>
+.project-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.project-name-cell span {
+    font-weight: 500;
+}
+
+#projectDescription,
+#editProjectDescription {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+#projectDescription:focus,
+#editProjectDescription:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+</style>
+
+<!-- Projects JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal elements
+    const addModal = document.getElementById('addProjectModal');
+    const editModal = document.getElementById('editProjectModal');
+    const addModalCloseBtn = addModal.querySelector('.close-modal');
+    const editModalCloseBtn = editModal.querySelector('.close-modal');
+    const addModalCancelBtn = addModal.querySelector('.btn-secondary');
+    const editModalCancelBtn = editModal.querySelector('.btn-secondary');
+
+    // Open modals
+    window.openAddModal = function() {
+        addModal.style.display = 'block';
+        setTimeout(() => addModal.classList.add('show'), 10);
+    }
+
+    function openEditModal(projectId) {
+        const projectRow = document.querySelector(`button[data-project-id="${projectId}"]`).closest('tr');
+        
+        // Get project data from the row
+        const name = projectRow.querySelector('.project-name-cell span').textContent;
+        const status = projectRow.querySelector('td:nth-child(3)').textContent;
+
+        // Populate the form
+        document.getElementById('editProjectId').value = projectId;
+        document.getElementById('editProjectName').value = name;
+        document.getElementById('editProjectStatus').value = status.toLowerCase();
+
+        editModal.style.display = 'block';
+        setTimeout(() => editModal.classList.add('show'), 10);
+    }
+
+    // Close modals
+    function closeAddModal() {
+        addModal.classList.remove('show');
+        setTimeout(() => {
+            addModal.style.display = 'none';
+            document.getElementById('addProjectForm').reset();
+        }, 200);
+    }
+
+    function closeEditModal() {
+        editModal.classList.remove('show');
+        setTimeout(() => {
+            editModal.style.display = 'none';
+            document.getElementById('editProjectForm').reset();
+        }, 200);
+    }
+
+    // Add event listeners
+    addModalCloseBtn.addEventListener('click', closeAddModal);
+    editModalCloseBtn.addEventListener('click', closeEditModal);
+    addModalCancelBtn.addEventListener('click', closeAddModal);
+    editModalCancelBtn.addEventListener('click', closeEditModal);
+
+    // Add click handlers to edit buttons
+    document.querySelectorAll('.btn-icon[title="Edit Project"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const projectId = this.getAttribute('data-project-id');
+            openEditModal(projectId);
+        });
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === addModal) {
+            closeAddModal();
+        } else if (event.target === editModal) {
+            closeEditModal();
+        }
+    });
+
+    // Close modals when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            if (addModal.style.display === 'block') closeAddModal();
+            if (editModal.style.display === 'block') closeEditModal();
+        }
+    });
+
+    // Handle form submissions
+    document.getElementById('addProjectForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Show loading state
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        submitButton.disabled = true;
+
+        try {
+            const formData = {
+                name: document.getElementById('projectName').value,
+                description: document.getElementById('projectDescription').value,
+                status: document.getElementById('projectStatus').value
+            };
+
+            const response = await fetch('/projects/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                closeAddModal();
+                window.location.reload(); // Refresh to show new project
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Error adding project:', error);
+            alert(error.message || 'Failed to add project. Please try again.');
+        } finally {
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+        }
+    });
+
+    document.getElementById('editProjectForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Show loading state
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitButton.disabled = true;
+
+        try {
+            const projectId = document.getElementById('editProjectId').value;
+            const formData = {
+                name: document.getElementById('editProjectName').value,
+                description: document.getElementById('editProjectDescription').value,
+                status: document.getElementById('editProjectStatus').value
+            };
+
+            const response = await fetch(`/projects/edit/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                closeEditModal();
+                window.location.reload(); // Refresh to show updated project
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Error updating project:', error);
+            alert(error.message || 'Failed to update project. Please try again.');
+        } finally {
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+        }
+    });
+
+    // Search functionality
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+
+    function filterProjects() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusTerm = statusFilter.value.toLowerCase();
+        const rows = document.querySelectorAll('.data-table tbody tr');
+
+        rows.forEach(row => {
+            const name = row.querySelector('.project-name-cell span')?.textContent.toLowerCase() || '';
+            const status = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+            const matchesSearch = name.includes(searchTerm);
+            const matchesStatus = !statusTerm || status === statusTerm;
+            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+        });
+    }
+
+    searchBtn.addEventListener('click', filterProjects);
+    searchInput.addEventListener('keyup', filterProjects);
+    statusFilter.addEventListener('change', filterProjects);
+});
+</script>
