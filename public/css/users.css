@@ -122,13 +122,6 @@
 .user-name-cell {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-}
-
-.user-avatar-small {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
 }
 
 .table-actions {
@@ -311,6 +304,30 @@
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid #e0e0e0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #95a5a6;
+}
+
+.empty-state-content i {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.empty-state-content p {
+    font-size: 1.1rem;
+    margin: 0;
 }
 
 /* Animations */
