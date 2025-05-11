@@ -32,11 +32,20 @@ app.use(session({
     httpOnly: true,
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
   },
   name: 'sessionId', // Custom cookie name
-  proxy: process.env.NODE_ENV === 'production' // Trust the reverse proxy when in production
+  proxy: true // Trust the reverse proxy
 }));
+
+// Add security headers
+app.use((req, res, next) => {
+  res.set({
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'X-Content-Type-Options': 'nosniff'
+  });
+  next();
+});
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
