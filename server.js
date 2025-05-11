@@ -24,19 +24,18 @@ const PORT = process.env.PORT || 3000;
 // Secure Session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   rolling: true,
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax', // Changed to lax for better compatibility
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
   },
   name: 'sessionId', // Custom cookie name
-  rolling: true // Refresh cookie on each request
+  proxy: process.env.NODE_ENV === 'production' // Trust the reverse proxy when in production
 }));
 
 // Middleware

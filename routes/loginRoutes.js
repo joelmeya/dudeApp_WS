@@ -83,13 +83,27 @@ router.post('/', async (req, res) => {
       fullName: user.FullName
     };
 
+    // Save session explicitly
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
     // Debug logging
     console.log('Login Session Set:', req.session.user);
+    console.log('Session ID:', req.session.id);
 
     return res.json({
       message: 'Login successful',
       user: req.session.user,
-      redirectUrl: '/dashboard'
+      redirectUrl: '/dashboard',
+      sessionId: req.session.id
     });
   } catch (err) {
     console.error('Login error:', {
