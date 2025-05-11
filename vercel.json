@@ -4,20 +4,30 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/css/(.*)",
-      "dest": "/public/css/$1"
+      "dest": "/public/css/$1",
+      "headers": { "cache-control": "public, max-age=86400" }
     },
     {
       "src": "/js/(.*)",
-      "dest": "/public/js/$1"
+      "dest": "/public/js/$1",
+      "headers": { "cache-control": "public, max-age=86400" }
     },
     {
       "src": "/images/(.*)",
-      "dest": "/public/images/$1"
+      "dest": "/public/images/$1",
+      "headers": { "cache-control": "public, max-age=86400" }
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

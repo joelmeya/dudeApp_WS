@@ -52,19 +52,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Configure static file serving
-app.use(express.static(path.join(__dirname, 'public'), {
+const staticOptions = {
   maxAge: '1d',
   etag: true,
-  lastModified: true
-}));
-
-// Ensure CSS files are served with correct content type
-app.use((req, res, next) => {
-  if (req.path.endsWith('.css')) {
-    res.type('text/css');
+  lastModified: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    // Enable CORS for static files
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   }
-  next();
-});
+};
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public'), staticOptions));
+
+// Fallback for static files
+app.use('/public', express.static(path.join(__dirname, 'public'), staticOptions));
 
 import expressLayouts from 'express-ejs-layouts';
 
