@@ -1,11 +1,59 @@
 <%- contentFor('body') %>
+<!-- Add Project Modal -->
+<div class="modal" id="newProjectModalUnique" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add New Project</h2>
+            <button class="close-modal" onclick="document.getElementById('newProjectModalUnique').style.display='none';">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addProjectForm">
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" name="projectName" placeholder="Enter project name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectType">Project Type</label>
+                    <select id="projectType" name="projectType" required>
+                        <option value="" disabled selected>Select a type</option>
+                        <option value="AACCUP">AACCUP</option>
+                        <option value="ISO">ISO</option>
+                        <option value="PACUCOA">PACUCOA</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="details">Details</label>
+                    <textarea id="details" name="details" placeholder="Enter project details" rows="3" style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.2s ease; background-color: #f8f9fa;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Accreditation Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                
+
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('newProjectModalUnique').style.display='none';">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus-circle"></i> Add Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="content">
     <div class="page-header">
         <div class="header-content">
             <h1>Document Projects</h1>
         </div>
         <div class="header-actions">
-            <button class="btn-primary new-project-btn">
+            <button class="btn-primary" id="newProjectBtnUnique" onclick="document.getElementById('newProjectModalUnique').style.display='block'; console.log('Button clicked directly');">
                 NEW PROJECT
             </button>
         </div>
@@ -237,3 +285,227 @@
     background: #E3F2FD;
 }
 </style>
+
+<style>
+/* Import the users.css styles for the modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal[style*="display: block"] {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.close-modal {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: #e9ecef;
+    color: #2c3e50;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    background-color: #dee2e6;
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #3498db;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Button styles */
+.btn-secondary {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #e9ecef;
+    color: #495057;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #dee2e6;
+}
+
+.btn-primary {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+// Modal functions
+function openProjectModal() {
+    document.getElementById('newProjectModalUnique').style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    console.log('Modal opened');
+    
+    // Set today's date
+    var dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+}
+
+function closeProjectModal() {
+    document.getElementById('newProjectModalUnique').style.display = 'none';
+    document.body.style.overflow = ''; // Restore scrolling
+    console.log('Modal closed');
+    
+    // Reset form
+    var form = document.getElementById('addProjectForm');
+    if (form) form.reset();
+}
+
+// Add event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Open button
+    var openBtn = document.getElementById('newProjectBtnUnique');
+    if (openBtn) {
+        openBtn.onclick = openProjectModal;
+    }
+    
+    // Close buttons
+    var closeButtons = document.querySelectorAll('#newProjectModalUnique .close-modal, #newProjectModalUnique .btn-secondary');
+    closeButtons.forEach(function(button) {
+        button.onclick = function(e) {
+            e.preventDefault();
+            closeProjectModal();
+        };
+    });
+    
+    // Form submission
+    var form = document.getElementById('addProjectForm');
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            // Here you would send data to the server
+            closeProjectModal();
+        };
+    }
+});
+</script>
