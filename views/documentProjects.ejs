@@ -40,6 +40,12 @@
         </div>
     </div>
 
+    <% if (error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
     <!-- Projects Table -->
     <div class="table-container">
         <table class="data-table">
@@ -47,44 +53,38 @@
                 <tr>
                     <th>Project Name</th>
                     <th>Type</th>
-                    <th>Created By</th>
-                    <th>Assignees</th>
-                    <th>Reviewers</th>
-                    <th>Accreditors</th>
+                    <th>Details</th>
+                    <th>Date</th>
                     <th>Status</th>
+                    <th>Created At</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Sample data row -->
-                <tr>
-                    <td>PACUCOA Document</td>
-                    <td>PACUCOA</td>
-                    <td>Lester Cuadra</td>
-                    <td>Felix Dela Fuente, Gab Mariano</td>
-                    <td>Jehan Punzalan, Ralph Gabriel Mariano</td>
-                    <td>Joel Eya</td>
-                    <td><span class="status-badge for-review">FOR REVIEW</span></td>
-                    <td>
-                        <button class="btn-icon" title="View Details">
-                            <i class="fas fa-external-link-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>ISO Document</td>
-                    <td>ISO</td>
-                    <td>Lester Cuadra</td>
-                    <td>Jehan Punzalan</td>
-                    <td>Felix Dela Fuente</td>
-                    <td>Gab Mariano</td>
-                    <td><span class="status-badge ongoing">ONGOING</span></td>
-                    <td>
-                        <button class="btn-icon" title="View Details">
-                            <i class="fas fa-external-link-alt"></i>
-                        </button>
-                    </td>
-                </tr>
+                <% if (projects && projects.length > 0) { %>
+                    <% projects.forEach(function(project) { %>
+                        <tr>
+                            <td><%= project.Project_Name || 'Untitled' %></td>
+                            <td><%= project.Project_Type || 'N/A' %></td>
+                            <td><%= project.Details || 'No details available' %></td>
+                            <td><%= project.Date ? new Date(project.Date).toLocaleDateString() : 'N/A' %></td>
+                            <td><span class="status-badge <%= (project.Status || 'pending').toLowerCase().replace(' ', '-') %>"><%= project.Status || 'Pending' %></span></td>
+                            <td><%= project.Created_AT ? new Date(project.Created_AT).toLocaleDateString() : 'N/A' %></td>
+                            <td>
+                                <button class="btn-icon" title="View Details" data-project-id="<%= project.ProjectID %>">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" title="Edit Project" data-project-id="<%= project.ProjectID %>">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center">No projects found</td>
+                    </tr>
+                <% } %>
             </tbody>
         </table>
     </div>
@@ -193,7 +193,18 @@
 .data-table td {
     padding: 1rem;
     border-bottom: 1px solid #eee;
-    color: #2c3e50;
+}
+
+.view-link {
+    color: #5B6EFF;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.view-link:hover {
+    background-color: rgba(91, 110, 255, 0.1);
 }
 
 .status-badge {
