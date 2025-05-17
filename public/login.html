@@ -9,6 +9,73 @@
   <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 
   <style>
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .loading-overlay.visible {
+      display: flex;
+    }
+
+    .loading-message {
+      margin-top: 15px;
+      color: #5B6EFF;
+      font-weight: 500;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #5B6EFF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    .loading-overlay .spinner {
+      display: block;
+    }
+
+    .login-button .spinner {
+      display: none;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .login-button {
+      position: relative;
+      min-height: 44px;
+    }
+
+    .login-button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .button-text {
+      transition: opacity 0.3s;
+    }
+
+    .button-text.hidden {
+      opacity: 0;
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -30,6 +97,7 @@
     .login-container h1 {
       background: linear-gradient(90deg, #5B6EFF, #48D6A0);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       font-size: 32px;
       margin-bottom: 10px;
@@ -69,44 +137,25 @@
   </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-message">Authenticating...</div>
+    </div>
   <div class="login-container">
     <h1>DUDE</h1>
     <p>Decentralized University Document Ecosystem</p>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Registere Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <button type="submit">Log In</button>
+    <form id="login-form">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit" class="login-button">
+        <span class="button-text">LOGIN</span>
+        <div class="spinner"></div>
+      </button>
     </form>
   </div>
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const result = await response.json();
-        
-        if (response.ok) {
-          alertify.success('Login successful! Redirecting...');
-          setTimeout(() => {
-            window.location.href = '/dashboard';
-          }, 1500);
-        } else {
-          alertify.error(result.message || 'Login failed.');
-        }
-      } catch (error) {
-        alertify.error('Server error. Please try again later.');
-      }
-    });
-  </script>
+  <!-- Include login.js -->
+  <script src="/js/login.js"></script>
 </body>
 </html>
