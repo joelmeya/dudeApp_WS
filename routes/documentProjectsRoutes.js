@@ -6,11 +6,11 @@ const router = express.Router();
 
 // Main Document Projects page route
 router.get('/', requireLogin, async (req, res) => {
-    console.log('Document Projects page requested');
-    
     try {
-        // Fetch all projects from the database
-        const result = await sql.query`
+        const { projectName, projectType, status } = req.query;
+        
+        // Build the SQL query based on search filters
+        let query = `
             SELECT 
                 ProjectID,
                 Project_Name,
@@ -21,16 +21,49 @@ router.get('/', requireLogin, async (req, res) => {
                 Acc_URL,
                 Created_AT
             FROM Projects
-            ORDER BY Created_AT DESC
+            WHERE 1=1
         `;
         
-        // Render the page with the projects data
+        const params = [];
+        
+        // Add search conditions if filters are provided
+        if (projectName && projectName.trim() !== '') {
+            query += ` AND Project_Name LIKE @projectName`;
+            params.push({ name: 'projectName', value: `%${projectName}%` });
+        }
+        
+        if (projectType && projectType.trim() !== '') {
+            query += ` AND Project_Type = @projectType`;
+            params.push({ name: 'projectType', value: projectType });
+        }
+        
+        if (status && status.trim() !== '') {
+            query += ` AND Status = @status`;
+            params.push({ name: 'status', value: status });
+        }
+        
+        // Add order by clause
+        query += ` ORDER BY Created_AT DESC`;
+        
+        // Create a request with the SQL Server connection
+        const request = new sql.Request();
+        
+        // Add parameters to the request
+        params.forEach(param => {
+            request.input(param.name, param.value);
+        });
+        
+        // Execute the query
+        const result = await request.query(query);
+        
+        // Render the page with the projects data and search filters
         return res.render('documentProjects', {
             title: 'Document Projects',
             activePage: 'documents',
             page: 'documents',
             user: req.session.user || null,
             projects: result.recordset || [],
+            filters: { projectName, projectType, status },
             error: null
         });
     } catch (error) {
@@ -43,6 +76,7 @@ router.get('/', requireLogin, async (req, res) => {
             page: 'documents',
             user: req.session.user || null,
             projects: [],
+            filters: {},
             error: 'Failed to fetch projects. Please try again later.'
         });
     }

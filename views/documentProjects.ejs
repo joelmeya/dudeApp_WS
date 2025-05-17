@@ -59,31 +59,33 @@
 
     <!-- Search and Filter Bar -->
     <div class="search-filter-container">
-        <div class="search-inputs">
-            <div class="search-field">
-                <input type="text" placeholder="Search By Project Name" class="form-control">
+        <form id="projectSearchForm" method="get" action="/documents">
+            <div class="search-inputs">
+                <div class="search-field">
+                    <input type="text" id="projectNameSearch" name="projectName" placeholder="Search By Project Name" class="form-control" value="<%= locals.filters && filters.projectName ? filters.projectName : '' %>">
+                </div>
+                <div class="search-field">
+                    <select id="projectTypeSearch" name="projectType" class="form-control">
+                        <option value="">Search By Document Type</option>
+                        <option value="AACCUP" <%= locals.filters && filters.projectType === 'AACCUP' ? 'selected' : '' %>>AACCUP</option>
+                        <option value="PACUCOA" <%= locals.filters && filters.projectType === 'PACUCOA' ? 'selected' : '' %>>PACUCOA</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <select id="projectStatusSearch" name="status" class="form-control">
+                        <option value="">Search By Status</option>
+                        <option value="NEW" <%= locals.filters && filters.status === 'NEW' ? 'selected' : '' %>>New</option>
+                        <option value="FOR REVIEW" <%= locals.filters && filters.status === 'FOR REVIEW' ? 'selected' : '' %>>For Review</option>
+                        <option value="ONGOING" <%= locals.filters && filters.status === 'ONGOING' ? 'selected' : '' %>>Ongoing</option>
+                        <option value="COMPLETED" <%= locals.filters && filters.status === 'COMPLETED' ? 'selected' : '' %>>Completed</option>
+                    </select>
+                </div>
+                <div class="search-actions">
+                    <button type="submit" class="btn-search">SEARCH</button>
+                    <a href="/documents" class="btn-reset" style="display: inline-block; text-align: center; text-decoration: none;">RESET</a>
+                </div>
             </div>
-            <div class="search-field">
-                <select class="form-control">
-                    <option value="">Search By Document Type</option>
-                    <option value="AACCUP">AACCUP</option>
-                    <option value="ISO">ISO</option>
-                    <option value="PACUCOA">PACUCOA</option>
-                </select>
-            </div>
-            <div class="search-field">
-                <select class="form-control">
-                    <option value="">Search By Status</option>
-                    <option value="FOR REVIEW">For Review</option>
-                    <option value="ONGOING">Ongoing</option>
-                    <option value="COMPLETED">Completed</option>
-                </select>
-            </div>
-            <div class="search-actions">
-                <button class="btn-search">SEARCH</button>
-                <button class="btn-reset">RESET</button>
-            </div>
-        </div>
+        </form>
     </div>
 
     <% if (error) { %>
@@ -592,7 +594,7 @@ console.error = function() {
 
 // Main script for document projects page
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Document Projects page loaded');
+    // Reset button is now a direct link to /documents
     
     // Get DOM elements
     const newProjectBtn = document.getElementById('newProjectBtnUnique');
