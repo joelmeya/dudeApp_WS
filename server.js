@@ -7,6 +7,7 @@ import projectRoutes from './routes/projectRoutes.js';
 import documentProjectsRoutes from './routes/documentProjectsRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import apiRoutes from './routes/apiRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -49,7 +50,17 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json()); // Add JSON body parser for handling JSON requests
+
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Request headers:', req.headers);
+  if (req.method === 'POST') {
+    console.log('Request body:', req.body);
+  }
+  next();
+});
 
 // Configure static file serving
 const staticOptions = {
@@ -112,10 +123,11 @@ app.use((err, req, res, next) => {
 });
 
 // Routes
-app.use('/api/login', loginRoutes);
-app.use('/users', userRoutes);
-app.use('/documents', documentProjectsRoutes);
+app.use('/api/login', loginRoutes); // Restore the correct login endpoint
 app.use('/projects', projectRoutes);
+app.use('/documents', documentProjectsRoutes);
+app.use('/users', userRoutes);
+app.use('/api', apiRoutes);
 
 // Root Route
 app.get('/', (req, res) => {
