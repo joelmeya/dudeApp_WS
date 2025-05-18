@@ -102,12 +102,11 @@ router.post('/add', requireLogin, async (req, res) => {
         // Insert new project into database
         const result = await sql.query`
             INSERT INTO Projects (Project_Name, Project_Type, Details, Date, Status, Created_AT)
-            OUTPUT INSERTED.ProjectID, INSERTED.Project_Name, INSERTED.Project_Type, INSERTED.Details, INSERTED.Date, INSERTED.Status, INSERTED.Created_AT
             VALUES (${projectName}, ${projectType}, ${details || null}, ${date}, 'NEW', GETDATE())
         `;
         
         // Get the newly created project
-        const newProject = result.recordset[0];
+        //const newProject = result.recordset[0];
         
         // Fetch all projects again
         const allProjects = await sql.query`
