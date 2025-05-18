@@ -1,0 +1,199 @@
+<%- contentFor('body') %>
+<div class="project-details-content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Document Projects</h1>
+        </div>
+    </div>
+
+    <!-- Project Details Card -->
+    <div class="project-card">
+        <div class="project-header">
+            <div class="project-info">
+                <div class="project-title-section">
+                    <h2>Project Details</h2>
+                </div>
+                <div class="completion-info">
+                    <div class="project-progress">
+                        <span>Project %:</span>
+                        <span class="progress-badge complete">100.00% Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-body">
+            <form id="projectForm" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" id="projectName" name="projectName" class="form-control" value="Pacucoa_Aug2024" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectType">Project Type</label>
+                        <input type="text" id="projectType" name="projectType" class="form-control" value="PACUCOA" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="For Review" selected>For Review - Document Admin</option>
+                            <option value="New">New</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetDate">Target Completion Date</label>
+                        <input type="date" id="targetDate" name="targetDate" class="form-control" value="2024-07-25">
+                    </div>
+                </div>
+
+                <!-- Assignee/s, Reviewer/s, and Accreditor/s sections removed as requested -->
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="details">Other Details/Info</label>
+                        <textarea id="details" name="details" class="form-control">Test Message</textarea>
+                    </div>
+                </div>
+
+                <!-- Document URL section removed as requested -->
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">SAVE CHANGES</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Section -->
+    <div class="task-section">
+        <div class="task-card">
+            <div class="task-header">
+                <h3>Project Tasks</h3>
+            </div>
+            <div class="task-body">
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Percentage</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Task 1</td>
+                            <td>Complete initial documentation</td>
+                            <td><span class="status-badge complete">Completed</span></td>
+                            <td>100%</td>
+                            <td class="actions-cell">
+                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Task 2</td>
+                            <td>Review documentation with stakeholders</td>
+                            <td><span class="status-badge ongoing">Ongoing</span></td>
+                            <td>65%</td>
+                            <td class="actions-cell">
+                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Task 3</td>
+                            <td>Finalize documentation for submission</td>
+                            <td><span class="status-badge new">New</span></td>
+                            <td>0%</td>
+                            <td class="actions-cell">
+                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Task Update Modal -->
+<div class="modal" id="updateTaskModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Update Task</h3>
+            <button class="close-modal" onclick="closeTaskModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="taskDescription">Task Description</label>
+                <input type="text" id="taskDescription" class="form-control" value="Area 1">
+            </div>
+            
+            <div class="form-group">
+                <label for="taskStatus">Status</label>
+                <div class="select-wrapper">
+                    <select id="taskStatus" class="form-control">
+                        <option value="New">New</option>
+                        <option value="Ongoing" selected>Ongoing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="For Review">For Review</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="taskAssignee">Assignee</label>
+                <div class="select-wrapper">
+                    <select id="taskAssignee" class="form-control">
+                        <option value="DocUser" selected>DocUser</option>
+                        <option value="John Doe">John Doe</option>
+                        <option value="Jane Smith">Jane Smith</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="percentageDropdown">Percentage Completed:</label>
+                <div class="select-wrapper">
+                    <select id="percentageDropdown" class="form-control">
+                        <option value="0">0%</option>
+                        <option value="25">25%</option>
+                        <option value="50" selected>50%</option>
+                        <option value="75">75%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="documentUrl1">Document Url 1</label>
+                <div class="document-url-container">
+                    <input type="text" id="documentUrl1" class="form-control" value="https://docs.google.com/spreadsheets/d/1bmayf3SrF">
+                    <button class="btn-remove-url"><i class="fas fa-minus"></i></button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="documentUrl2">Document Url 2</label>
+                <div class="document-url-container">
+                    <input type="text" id="documentUrl2" class="form-control" value="https://docs.google.com/document/d/1__ELHY">
+                    <button class="btn-remove-url"><i class="fas fa-minus"></i></button>
+                    <button class="btn-add-url"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelTaskUpdate" onclick="closeTaskModal()">CANCEL</button>
+                <button class="btn-save" id="saveTaskChanges" onclick="saveTaskChanges()">SAVE CHANGES</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeTaskModal()"></div>

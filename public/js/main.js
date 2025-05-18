@@ -1,3 +1,15 @@
+// Configure Alertify globally
+if (typeof alertify !== 'undefined') {
+    // Set default settings
+    alertify.defaults.transition = 'slide';
+    alertify.defaults.theme.ok = 'btn btn-primary';
+    alertify.defaults.theme.cancel = 'btn btn-danger';
+    alertify.defaults.theme.input = 'form-control';
+    alertify.defaults.notifier.position = 'top-right';
+    alertify.defaults.notifier.delay = 5;
+    alertify.defaults.notifier.closeButton = true;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Logout functionality
     const logoutBtn = document.getElementById('logout-btn');
