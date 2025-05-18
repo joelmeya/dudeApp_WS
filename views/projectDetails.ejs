@@ -5,6 +5,14 @@
             <h1>Document Projects</h1>
         </div>
     </div>
+    
+
+    
+    <% if (typeof formError !== 'undefined' && formError) { %>
+    <div class="notification error" id="errorNotification">
+        <%= formError %>
+    </div>
+    <% } %>
 
     <!-- Project Details Card -->
     <div class="project-card">
@@ -121,76 +129,136 @@
 
 
 
-<!-- Task Update Modal -->
+<!-- Task Update Form Modal -->
 <div class="modal" id="updateTaskModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Update Task</h3>
+            <h3 id="taskModalTitle">Task Details</h3>
             <button class="close-modal" onclick="closeTaskModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label for="taskDescription">Task Description</label>
-                <input type="text" id="taskDescription" class="form-control" value="Area 1">
-            </div>
-            
-            <div class="form-group">
-                <label for="taskStatus">Status</label>
-                <div class="select-wrapper">
-                    <select id="taskStatus" class="form-control">
-                        <option value="New">New</option>
-                        <option value="Ongoing" selected>Ongoing</option>
-                        <option value="Completed">Completed</option>
-                        <option value="For Review">For Review</option>
-                    </select>
+            <form id="taskUpdateForm" method="post" action="/project-details/<%= projectId %>/update-task">
+                <input type="hidden" id="taskId" name="taskId" value="">
+                
+                <div class="task-form-container">
+                    <!-- Top Row - Task Details and Documents side by side -->
+                    <div class="task-top-row">
+                        <!-- Left Column - Task Details -->
+                        <div class="task-details-column">
+                            <div class="task-section">
+                                <div class="section-header">
+                                    <h4>Task Details</h4>
+                                </div>
+                                <div class="task-details-content">
+
+                                    
+                                    <div class="form-group">
+                                        <label for="taskStatus">Status</label>
+                                        <div class="select-wrapper">
+                                            <select id="taskStatus" name="taskStatus" class="form-control" required>
+                                                <option value="New">New</option>
+                                                <option value="Ongoing">Ongoing</option>
+                                                <option value="Completed">Completed</option>
+                                                <option value="For Review">For Review</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+
+                                    
+                                    <div class="form-group">
+                                        <label for="percentageDropdown">Percentage Completed:</label>
+                                        <div class="select-wrapper">
+                                            <select id="percentageDropdown" name="percentageDropdown" class="form-control" required>
+                                                <option value="0">0%</option>
+                                                <option value="25">25%</option>
+                                                <option value="50">50%</option>
+                                                <option value="75">75%</option>
+                                                <option value="100">100%</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Task Documents -->
+                        <div class="task-documents-column">
+                            <div class="task-section">
+                                <div class="section-header">
+                                    <h4>Task Documents</h4>
+                                    <button type="button" class="btn-sm btn-primary">Add Document</button>
+                                </div>
+                                <div class="documents-table-container">
+                                    <table class="documents-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Document Name</th>
+                                                <th>Document URL</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Document 1</td>
+                                                <td>
+                                                    <input type="text" id="documentUrl1" name="documentUrl1" class="form-control" placeholder="Enter document URL">
+                                                </td>
+                                                <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Document 2</td>
+                                                <td>
+                                                    <input type="text" id="documentUrl2" name="documentUrl2" class="form-control" placeholder="Enter document URL">
+                                                </td>
+                                                <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Row - Task Feedbacks (full width) -->
+                    <div class="task-bottom-row">
+                        <div class="task-section">
+                            <div class="section-header">
+                                <h4>Task Feedbacks</h4>
+                                <button type="button" class="btn-sm btn-primary">Add Feedback</button>
+                            </div>
+                            <div class="documents-table-container">
+                                <table class="documents-table">
+                                    <thead>
+                                        <tr>
+                                            <th>From</th>
+                                            <th>Feedback Details</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Joel Eya</td>
+                                            <td>Http...</td>
+                                            <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jhen Eya</td>
+                                            <td>HTTP...</td>
+                                            <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="taskAssignee">Assignee</label>
-                <div class="select-wrapper">
-                    <select id="taskAssignee" class="form-control">
-                        <option value="DocUser" selected>DocUser</option>
-                        <option value="John Doe">John Doe</option>
-                        <option value="Jane Smith">Jane Smith</option>
-                    </select>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="percentageDropdown">Percentage Completed:</label>
-                <div class="select-wrapper">
-                    <select id="percentageDropdown" class="form-control">
-                        <option value="0">0%</option>
-                        <option value="25">25%</option>
-                        <option value="50" selected>50%</option>
-                        <option value="75">75%</option>
-                        <option value="100">100%</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="documentUrl1">Document Url 1</label>
-                <div class="document-url-container">
-                    <input type="text" id="documentUrl1" class="form-control" value="https://docs.google.com/spreadsheets/d/1bmayf3SrF">
-                    <button class="btn-remove-url"><i class="fas fa-minus"></i></button>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="documentUrl2">Document Url 2</label>
-                <div class="document-url-container">
-                    <input type="text" id="documentUrl2" class="form-control" value="https://docs.google.com/document/d/1__ELHY">
-                    <button class="btn-remove-url"><i class="fas fa-minus"></i></button>
-                    <button class="btn-add-url"><i class="fas fa-plus"></i></button>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-cancel" id="cancelTaskUpdate" onclick="closeTaskModal()">CANCEL</button>
-                <button class="btn-save" id="saveTaskChanges" onclick="saveTaskChanges()">SAVE CHANGES</button>
-            </div>
+            </form>
         </div>
     </div>
 </div>

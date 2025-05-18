@@ -45,7 +45,9 @@ router.get('/:id', requireLogin, async (req, res) => {
         res.render('projectDetails', { 
             user: req.session.user, 
             page: 'projectDetails',
-            projectId: req.params.id
+            projectId: req.params.id,
+            formSuccess: req.query.success === 'true',
+            formError: req.query.error
         });
     } catch (err) {
         console.error('Error loading project details:', err);
@@ -54,6 +56,32 @@ router.get('/:id', requireLogin, async (req, res) => {
             error: err,
             user: req.session.user
         });
+    }
+});
+
+// Route to handle task update form submission
+router.post('/:id/update-task', requireLogin, async (req, res) => {
+    try {
+        const projectId = req.params.id;
+        const taskId = req.body.taskId;
+        const { taskStatus, percentageDropdown, documentUrl1, documentUrl2 } = req.body;
+        
+        console.log('Task update data received:', {
+            projectId,
+            taskId,
+            taskStatus,
+            percentageCompleted: percentageDropdown,
+            documentUrl1,
+            documentUrl2
+        });
+        
+        // In a real implementation, this would update the database
+        // For now, we'll just redirect back with a success parameter for alertify
+        
+        res.redirect(`/project-details/${projectId}?success=true`);
+    } catch (err) {
+        console.error('Error updating task:', err);
+        res.redirect(`/project-details/${req.params.id}?error=Failed to update task`);
     }
 });
 

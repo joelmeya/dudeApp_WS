@@ -1,7 +1,7 @@
 <%- contentFor('body') %>
 <!-- Add Project Modal -->
-<div class="modal" id="newProjectModalUnique" style="display: none; overflow-y: scroll; -webkit-overflow-scrolling: touch;">
-    <div class="modal-content" style="margin: 20px auto;">
+<div class="modal" id="newProjectModalUnique" style="display: none;">
+    <div class="modal-content">
         <div class="modal-header">
             <h2>Add New Project</h2>
             <button class="close-modal" onclick="document.getElementById('newProjectModalUnique').style.display='none';">
@@ -70,6 +70,7 @@
                     <select id="projectTypeSearch" name="projectType" class="form-control">
                         <option value="">Search By Document Type</option>
                         <option value="AACCUP" <%= locals.filters && filters.projectType === 'AACCUP' ? 'selected' : '' %>>AACCUP</option>
+                        <option value="ISO" <%= locals.filters && filters.projectType === 'ISO' ? 'selected' : '' %>>ISO</option>
                         <option value="PACUCOA" <%= locals.filters && filters.projectType === 'PACUCOA' ? 'selected' : '' %>>PACUCOA</option>
                     </select>
                 </div>
@@ -103,7 +104,6 @@
                 <tr>
                     <th>Project Name</th>
                     <th>Type</th>
-                    <th>Details</th>
                     <th>Date</th>
                     <th>Status</th>
                     <th>Created At</th>
@@ -113,10 +113,9 @@
             <tbody>
                 <% if (projects && projects.length > 0) { %>
                     <% projects.forEach(function(project) { %>
-                        <tr>
+                        <tr style="line-height: 1.2; height: auto;">
                             <td><%= project.Project_Name || 'Untitled' %></td>
                             <td><%= project.Project_Type || 'N/A' %></td>
-                            <td><%= project.Details || 'No details available' %></td>
                             <td><%= project.Date ? new Date(project.Date).toLocaleDateString() : 'N/A' %></td>
                             <td><span class="status-badge <%= (project.Status || 'pending').toLowerCase().replace(' ', '-') %>"><%= project.Status || 'Pending' %></span></td>
                             <td><%= project.Created_AT ? new Date(project.Created_AT).toLocaleDateString() : 'N/A' %></td>
@@ -129,7 +128,7 @@
                     <% }); %>
                 <% } else { %>
                     <tr>
-                        <td colspan="6" class="text-center">No projects found</td>
+                        <td colspan="5" class="text-center">No projects found</td>
                     </tr>
                 <% } %>
             </tbody>
@@ -226,20 +225,59 @@
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
-.data-table th {
+.data-table th:nth-child(1) {
+    width: 25%;  /* Project Name */
+}
+
+.data-table th:nth-child(2) {
+    width: 15%;  /* Type */
+}
+
+.data-table th:nth-child(3) {
+    width: 15%;  /* Date */
+}
+
+.data-table th:nth-child(4) {
+    width: 15%;  /* Status */
+}
+
+.data-table th:nth-child(5) {
+    width: 20%;  /* Created At */
+}
+
+.data-table th:nth-child(6) {
+    width: 10%;  /* Actions */
+}
+
+table.data-table > thead > tr > th {
     background: #f8f9fa;
-    padding: 1rem;
+    padding: 0.5rem 0.75rem !important;
     text-align: left;
     font-weight: 600;
     color: #2c3e50;
     border-bottom: 2px solid #eee;
+    line-height: 1.2;
 }
 
-.data-table td {
-    padding: 1rem;
+table.data-table > tbody > tr > td {
+    padding: 0.5rem 0.75rem !important;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    height: auto;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
 .view-link {
