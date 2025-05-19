@@ -103,14 +103,17 @@ function openTaskModal(button) {
             modalOverlay.style.display = 'block';
         }
         
-        // Reset the global assignedUsers array
+        // Reset the global arrays
         assignedUsers = [];
+        taskDocuments = [];
         
-        // Initialize user assignment functionality
+        // Initialize UI components
         initializeUserAssignment();
+        initializeDocuments();
         
-        // Load assigned users for this task
+        // Load data for this task
         loadAssignedUsers(taskId);
+        loadTaskDocuments(taskId);
         
         console.log('Modal should be visible now');
     } catch (error) {
@@ -331,10 +334,317 @@ function loadAssignedUsers(taskId) {
         });
 }
 
-// Initialize user assignment when the task modal is opened
+// Global variable to track task documents
+let taskDocuments = [];
+
+// Function to add a document to the task
+function addDocumentToTask(name, url) {
+    // Generate a unique ID for the document
+    const docId = 'doc_' + Date.now();
+    
+    // Create document object
+    const document = {
+        id: docId,
+        name: name,
+        url: url
+    };
+    
+    // Add to array
+    taskDocuments.push(document);
+    
+    // Update the hidden input
+    updateTaskDocumentsInput();
+    
+    // Add to the UI
+    displayDocument(document);
+    
+    // Check if we need to hide the empty message
+    toggleEmptyDocumentsMessage();
+}
+
+// Function to display a document in the list
+function displayDocument(doc) {
+    // Get the documents list element
+    const documentsList = document.getElementById('documentsList');
+    if (!documentsList) {
+        console.error('Documents list element not found');
+        return;
+    }
+    
+    // Create document item element
+    const docItem = document.createElement('div');
+    docItem.className = 'document-item';
+    docItem.setAttribute('data-doc-id', doc.id);
+    
+    // Create document content
+    docItem.innerHTML = `
+        <div class="doc-name-col">
+            <div class="document-name" title="${doc.name}">${doc.name}</div>
+        </div>
+        <div class="doc-url-col">
+            <div class="document-url" title="${doc.url}">${doc.url}</div>
+        </div>
+        <div class="doc-actions-col">
+            <div class="document-actions">
+                <a href="${doc.url}" class="view-document" target="_blank" title="View Document">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+                <button type="button" class="remove-document" data-doc-id="${doc.id}" title="Remove Document">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to list
+    documentsList.appendChild(docItem);
+}
+
+// Function to remove a document from the task
+function removeDocumentFromTask(docId) {
+    // Remove from array
+    taskDocuments = taskDocuments.filter(doc => doc.id !== docId);
+    
+    // Update the hidden input
+    updateTaskDocumentsInput();
+    
+    // Remove from UI
+    const docItem = document.querySelector(`.document-item[data-doc-id="${docId}"]`);
+    if (docItem) {
+        docItem.remove();
+    }
+    
+    // Check if we need to show the empty message
+    toggleEmptyDocumentsMessage();
+}
+
+// Function to update the hidden input with documents data
+function updateTaskDocumentsInput() {
+    const taskDocumentsInput = document.getElementById('taskDocumentsData');
+    if (taskDocumentsInput) {
+        taskDocumentsInput.value = JSON.stringify(taskDocuments);
+    }
+}
+
+// Function to toggle the empty documents message
+function toggleEmptyDocumentsMessage() {
+    const emptyMessage = document.getElementById('emptyDocumentsMessage');
+    if (!emptyMessage) return;
+    
+    if (taskDocuments.length === 0) {
+        emptyMessage.style.display = 'flex';
+    } else {
+        emptyMessage.style.display = 'none';
+    }
+}
+
+// Function to initialize the documents functionality
+function initializeDocuments() {
+    console.log('Initializing documents functionality');
+    
+    // Reset documents array
+    taskDocuments = [];
+    
+    // Clear the documents list
+    const documentsList = document.getElementById('documentsList');
+    if (documentsList) {
+        documentsList.innerHTML = '';
+    }
+    
+    // Update the hidden input
+    updateTaskDocumentsInput();
+    
+    // Show the empty message
+    toggleEmptyDocumentsMessage();
+    
+    // Setup the Add Document button - direct approach without cloning
+    const addDocumentBtn = document.getElementById('addDocumentBtn');
+    console.log('Add Document button found:', addDocumentBtn);
+    
+    if (addDocumentBtn) {
+        // First remove any existing listeners to prevent duplicates
+        addDocumentBtn.removeEventListener('click', handleAddDocument);
+        
+        // Then add the event listener
+        addDocumentBtn.addEventListener('click', handleAddDocument);
+    } else {
+        console.error('Add Document button not found');
+    }
+    
+    // Setup document removal - direct approach
+    const documentListContainer = document.querySelector('.documents-list-container');
+    if (documentListContainer) {
+        // Remove existing listeners
+        documentListContainer.removeEventListener('click', handleRemoveDocument);
+        
+        // Add new listener
+        documentListContainer.addEventListener('click', handleRemoveDocument);
+    } else {
+        console.error('Documents list container not found');
+    }
+}
+
+// Handler for adding documents
+function handleAddDocument() {
+    console.log('Add document button clicked');
+    
+    // Prevent duplicate executions by debouncing
+    if (handleAddDocument.isProcessing) {
+        console.log('Already processing a document addition');
+        return;
+    }
+    
+    // Set processing flag
+    handleAddDocument.isProcessing = true;
+    
+    try {
+        const nameInput = document.getElementById('documentName');
+        const urlInput = document.getElementById('documentUrl');
+        
+        if (!nameInput || !urlInput) {
+            console.error('Document form inputs not found');
+            return;
+        }
+        
+        const name = nameInput.value.trim();
+        const url = urlInput.value.trim();
+        
+        // Validate inputs
+        if (!name) {
+            alertify.warning('Please enter a document name');
+            nameInput.focus();
+            return;
+        }
+        
+        if (!url) {
+            alertify.warning('Please enter a document URL');
+            urlInput.focus();
+            return;
+        }
+        
+        // Check for duplicate document names
+        const isDuplicate = taskDocuments.some(doc => doc.name.toLowerCase() === name.toLowerCase());
+        if (isDuplicate) {
+            alertify.warning('A document with this name already exists');
+            nameInput.focus();
+            return;
+        }
+        
+        // Add the document
+        addDocumentToTask(name, url);
+        
+        // Clear inputs
+        nameInput.value = '';
+        urlInput.value = '';
+        nameInput.focus();
+        
+        // Show success message
+        alertify.success('Document added successfully');
+    } finally {
+        // Reset processing flag after a short delay
+        setTimeout(() => {
+            handleAddDocument.isProcessing = false;
+        }, 300);
+    }
+}
+
+// Handler for removing documents
+function handleRemoveDocument(e) {
+    const removeBtn = e.target.closest('.remove-document');
+    if (removeBtn) {
+        const docId = removeBtn.getAttribute('data-doc-id');
+        if (docId) {
+            removeDocumentFromTask(docId);
+            alertify.success('Document removed');
+        }
+    }
+}
+
+// Function to load existing documents for a task
+function loadTaskDocuments(taskId) {
+    console.log('Loading documents for task ID:', taskId);
+    
+    // Get the project ID from the URL
+    const urlParts = window.location.pathname.split('/');
+    const projectId = urlParts[urlParts.length - 1];
+    
+    // Reset documents array
+    taskDocuments = [];
+    
+    // Clear the documents list
+    const documentsList = document.getElementById('documentsList');
+    if (documentsList) {
+        documentsList.innerHTML = '';
+    }
+    
+    // Fetch documents from the API
+    fetch(`/project-details/${projectId}/tasks/${taskId}/documents`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch task documents');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Add each document to the task
+            data.forEach(doc => {
+                // Add to array
+                taskDocuments.push(doc);
+                
+                // Display in UI
+                displayDocument(doc);
+            });
+            
+            // Update the hidden input
+            updateTaskDocumentsInput();
+            
+            // Toggle empty message
+            toggleEmptyDocumentsMessage();
+        })
+        .catch(error => {
+            console.error('Error loading task documents:', error);
+            alertify.error('Failed to load task documents');
+        });
+}
+
+// Initialize user assignment and documents when the task modal is opened
 function initializeTaskModal() {
+    console.log('Initializing task modal components');
+    
+    // Clear any existing event handlers first
+    removeAllEventHandlers();
+    
+    // Initialize document buttons first (from the old implementation)
     initializeDocumentButtons();
+    
+    // Then initialize user assignment
     initializeUserAssignment();
+    
+    // Finally initialize documents functionality
+    initializeDocuments();
+}
+
+// Function to remove all event handlers to prevent duplicates
+function removeAllEventHandlers() {
+    // Remove Add Document button event handlers
+    const addDocumentBtn = document.getElementById('addDocumentBtn');
+    if (addDocumentBtn) {
+        // Create a clone without event listeners
+        const newBtn = addDocumentBtn.cloneNode(true);
+        if (addDocumentBtn.parentNode) {
+            addDocumentBtn.parentNode.replaceChild(newBtn, addDocumentBtn);
+        }
+    }
+    
+    // Remove document list event handlers
+    const documentsList = document.getElementById('documentsList');
+    if (documentsList) {
+        // Clear the list to remove any event handlers
+        documentsList.innerHTML = '';
+    }
+    
+    // Reset the global taskDocuments array
+    taskDocuments = [];
 }
 
 // Make functions globally available

@@ -999,6 +999,172 @@ textarea.form-control {
     font-size: 14px;
 }
 
+/* Task Documents styling */
+.documents-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    height: 100%;
+}
+
+.document-add-form {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.document-add-form .form-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.document-add-form .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.document-add-form input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.documents-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    min-height: 200px;
+}
+
+.documents-list-header {
+    display: flex;
+    background-color: #e9ecef;
+    padding: 10px 15px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.documents-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 250px;
+}
+
+.document-item {
+    display: flex;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #fff;
+    transition: background-color 0.2s;
+}
+
+.document-item:hover {
+    background-color: #f8f9fa;
+}
+
+.document-item:last-child {
+    border-bottom: none;
+}
+
+.doc-name-col {
+    flex: 1;
+    min-width: 0;
+    padding-right: 10px;
+}
+
+.doc-url-col {
+    flex: 1.5;
+    min-width: 0;
+    padding-right: 10px;
+}
+
+.doc-actions-col {
+    width: 80px;
+    text-align: center;
+}
+
+.document-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.document-url {
+    color: #6c757d;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.document-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.document-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.remove-document {
+    color: #dc3545;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.remove-document:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.view-document {
+    color: #0056b3;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.view-document:hover {
+    background-color: rgba(0, 86, 179, 0.1);
+    text-decoration: none;
+}
+
+.empty-documents-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #6c757d;
+    text-align: center;
+    height: 100%;
+}
+
+.empty-documents-message i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
 .modal-body label {
     display: block;
     margin-bottom: 0.4rem;

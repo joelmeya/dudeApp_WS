@@ -79,15 +79,13 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
     try {
         const projectId = req.params.id;
         const taskId = req.body.taskId;
-        const { taskStatus, percentageDropdown, documentUrl1, documentUrl2, assignedUsersIds } = req.body;
+        const { taskStatus, percentageDropdown, assignedUsersIds, taskDocumentsData } = req.body;
         
         console.log('Task update data received:', {
             projectId,
             taskId,
             taskStatus,
             percentageCompleted: percentageDropdown,
-            documentUrl1,
-            documentUrl2,
             assignedUsersIds
         });
         
@@ -105,6 +103,29 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
             // for (const userId of assignedUserIdArray) {
             //     await sql.query`INSERT INTO task_assignments (task_id, user_id) VALUES (${taskId}, ${userId})`;
             // }
+        }
+        
+        // Process task documents if present
+        if (taskDocumentsData) {
+            try {
+                const documents = JSON.parse(taskDocumentsData);
+                console.log('Task documents:', documents);
+                
+                // In a real implementation, you would:
+                // 1. Delete existing documents for this task
+                // 2. Insert new documents
+                // For example:
+                // const { sql } = await import('../db/sql.js');
+                // await sql.query`DELETE FROM task_documents WHERE task_id = ${taskId}`;
+                // for (const doc of documents) {
+                //     await sql.query`
+                //         INSERT INTO task_documents (task_id, document_name, document_url)
+                //         VALUES (${taskId}, ${doc.name}, ${doc.url})
+                //     `;
+                // }
+            } catch (parseError) {
+                console.error('Error parsing task documents data:', parseError);
+            }
         }
         
         // In a real implementation, this would update the database
@@ -145,6 +166,35 @@ router.get('/:projectId/tasks/:taskId/assigned-users', requireLogin, async (req,
     } catch (err) {
         console.error('Error fetching assigned users for task:', err);
         res.status(500).json({ error: 'Failed to fetch assigned users' });
+    }
+});
+
+// API endpoint to get documents for a task
+router.get('/:projectId/tasks/:taskId/documents', requireLogin, async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        
+        // In a real implementation, you would fetch documents from the database
+        // For example:
+        // const { sql } = await import('../db/sql.js');
+        // const result = await sql.query`
+        //     SELECT id, document_name as name, document_url as url
+        //     FROM task_documents
+        //     WHERE task_id = ${taskId}
+        //     ORDER BY document_name ASC
+        // `;
+        // const documents = result.recordset;
+        
+        // For now, we'll return mock data for demonstration
+        const mockDocuments = [
+            { id: 'doc_1', name: 'Requirements Document', url: 'https://example.com/docs/requirements.pdf' },
+            { id: 'doc_2', name: 'Design Specifications', url: 'https://example.com/docs/design.pdf' }
+        ];
+        
+        res.json(mockDocuments);
+    } catch (err) {
+        console.error('Error fetching documents for task:', err);
+        res.status(500).json({ error: 'Failed to fetch task documents' });
     }
 });
 

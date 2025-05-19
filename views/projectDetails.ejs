@@ -214,34 +214,41 @@
                             <div class="task-section">
                                 <div class="section-header">
                                     <h4>Task Documents</h4>
-                                    <button type="button" class="btn-sm btn-primary">Add Document</button>
                                 </div>
-                                <div class="documents-table-container">
-                                    <table class="documents-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Document Name</th>
-                                                <th>Document URL</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Document 1</td>
-                                                <td>
-                                                    <input type="text" id="documentUrl1" name="documentUrl1" class="form-control" placeholder="Enter document URL">
-                                                </td>
-                                                <td><button type="button" class="btn-sm btn-secondary">View</button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Document 2</td>
-                                                <td>
-                                                    <input type="text" id="documentUrl2" name="documentUrl2" class="form-control" placeholder="Enter document URL">
-                                                </td>
-                                                <td><button type="button" class="btn-sm btn-secondary">View</button></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="documents-container">
+                                    <!-- Document Add Form -->
+                                    <div class="document-add-form">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <input type="text" id="documentName" class="form-control" placeholder="Document Name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="url" id="documentUrl" class="form-control" placeholder="Document URL" required>
+                                            </div>
+                                            <button type="button" class="btn-sm btn-primary" id="addDocumentBtn">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Documents List -->
+                                    <div class="documents-list-container">
+                                        <div class="documents-list-header">
+                                            <div class="doc-name-col">Document Name</div>
+                                            <div class="doc-url-col">URL</div>
+                                            <div class="doc-actions-col">Actions</div>
+                                        </div>
+                                        <div class="documents-list" id="documentsList">
+                                            <!-- Documents will be added here dynamically -->
+                                        </div>
+                                        <div class="empty-documents-message" id="emptyDocumentsMessage">
+                                            <i class="fas fa-file-alt"></i>
+                                            <p>No documents added yet</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hidden input to store documents data -->
+                                    <input type="hidden" id="taskDocumentsData" name="taskDocumentsData" value="">
                                 </div>
                             </div>
                         </div>
