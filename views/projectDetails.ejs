@@ -178,6 +178,33 @@
                                             </select>
                                         </div>
                                     </div>
+                                    
+                                    <!-- User Assignment Section -->
+                                    <div class="form-group">
+                                        <label for="assignedUsers">Assigned Users</label>
+                                        <div class="assigned-users-container">
+                                            <div class="select-wrapper">
+                                                <select id="assignedUsersDropdown" class="form-control">
+                                                    <option value="" disabled selected>Select a user</option>
+                                                    <% if (typeof users !== 'undefined' && users && users.length > 0) { %>
+                                                        <% users.forEach(function(user) { %>
+                                                            <option value="<%= user.id %>"><%= user.name %> (<%= user.role %>)</option>
+                                                        <% }); %>
+                                                    <% } %>
+                                                </select>
+                                                <button type="button" class="btn-sm btn-primary" id="addAssignedUser">
+                                                    <i class="fas fa-plus"></i> Add
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="assigned-users-list">
+                                                <ul id="assignedUsersList">
+                                                    <!-- Assigned users will be displayed here -->
+                                                </ul>
+                                                <input type="hidden" id="assignedUsersIds" name="assignedUsersIds" value="">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
