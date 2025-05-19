@@ -377,7 +377,11 @@ function loadAssignedUsers(taskId) {
             if (!response.ok) {
                 throw new Error('Failed to fetch assigned users');
             }
-            return response.json();
+            return response.json().catch(err => {
+                console.warn('JSON parsing failed, trying fallback:', err);
+                // If JSON parsing fails (e.g., HTML response), try fallback
+                return [];
+            });
         })
         .then(data => {
             // Check if there are any assigned users
@@ -410,7 +414,74 @@ function loadAssignedUsers(taskId) {
         })
         .catch(error => {
             console.error('Error loading assigned users:', error);
-            alertify.error('Failed to load assigned users');
+            
+            // Try alternative approach with XMLHttpRequest for maximum compatibility with Vercel
+            console.log('Trying fallback with XMLHttpRequest...');
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/project-details/${projectId}/tasks/${taskId}/assigned-users`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        // Try to parse the response as JSON
+                        const users = JSON.parse(xhr.responseText);
+                        console.log('Fallback successful, users:', users);
+                        
+                        // Process the users
+                        if (users && users.length > 0) {
+                            users.forEach(user => {
+                                addUserToAssignedList(user.id, user.name + ' (' + user.role + ')');
+                            });
+                        } else {
+                            // Display 'No user assigned' message
+                            const assignedUsersList = document.getElementById('assignedUsersList');
+                            if (assignedUsersList) {
+                                const noUserMessage = document.createElement('li');
+                                noUserMessage.className = 'no-users-message';
+                                noUserMessage.textContent = 'No user assigned';
+                                assignedUsersList.appendChild(noUserMessage);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing fallback response:', e);
+                        alertify.error('Failed to load assigned users');
+                        
+                        // Display 'No user assigned' message as a fallback
+                        const assignedUsersList = document.getElementById('assignedUsersList');
+                        if (assignedUsersList) {
+                            const noUserMessage = document.createElement('li');
+                            noUserMessage.className = 'no-users-message';
+                            noUserMessage.textContent = 'No user assigned';
+                            assignedUsersList.appendChild(noUserMessage);
+                        }
+                    }
+                } else {
+                    console.error('Fallback request failed with status:', xhr.status);
+                    alertify.error('Failed to load assigned users');
+                    
+                    // Display 'No user assigned' message as a fallback
+                    const assignedUsersList = document.getElementById('assignedUsersList');
+                    if (assignedUsersList) {
+                        const noUserMessage = document.createElement('li');
+                        noUserMessage.className = 'no-users-message';
+                        noUserMessage.textContent = 'No user assigned';
+                        assignedUsersList.appendChild(noUserMessage);
+                    }
+                }
+            };
+            xhr.onerror = function() {
+                console.error('Network error in fallback request');
+                alertify.error('Failed to load assigned users');
+                
+                // Display 'No user assigned' message as a fallback
+                const assignedUsersList = document.getElementById('assignedUsersList');
+                if (assignedUsersList) {
+                    const noUserMessage = document.createElement('li');
+                    noUserMessage.className = 'no-users-message';
+                    noUserMessage.textContent = 'No user assigned';
+                    assignedUsersList.appendChild(noUserMessage);
+                }
+            };
+            xhr.send();
         });
 }
 
