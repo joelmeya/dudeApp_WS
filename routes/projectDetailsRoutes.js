@@ -256,18 +256,49 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
                 const documents = JSON.parse(taskDocumentsData);
                 console.log('Task documents:', documents);
                 
-                // In a real implementation, you would:
-                // 1. Delete existing documents for this task
-                // 2. Insert new documents
-                // For example:
-                // const { sql } = await import('../db/sql.js');
-                // await sql.query`DELETE FROM task_documents WHERE task_id = ${taskId}`;
-                // for (const doc of documents) {
-                //     await sql.query`
-                //         INSERT INTO task_documents (task_id, document_name, document_url)
-                //         VALUES (${taskId}, ${doc.name}, ${doc.url})
-                //     `;
-                // }
+                // Get the full name of the logged-in user (for Created_By field)
+                const createdBy = req.session.user.name;
+                
+                // Get the SQL connection
+                const { sql } = await import('../db/sql.js');
+                
+                try {
+                    // First, ensure the Task_Documents table exists
+                    try {
+                        await sql.query`
+                            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Task_Documents')
+                            BEGIN
+                                CREATE TABLE Task_Documents (
+                                    id INT IDENTITY(1,1) PRIMARY KEY,
+                                    task_id INT NOT NULL,
+                                    DocumentName NVARCHAR(255) NOT NULL,
+                                    DocURL NVARCHAR(MAX) NOT NULL,
+                                    Created_By NVARCHAR(100) NOT NULL,
+                                    Created_At DATETIME DEFAULT GETDATE()
+                                )
+                            END
+                        `;
+                        console.log('Ensured Task_Documents table exists');
+                    } catch (tableError) {
+                        console.error('Error ensuring Task_Documents table exists:', tableError);
+                    }
+                    
+                    // Delete existing documents for this task
+                    await sql.query`DELETE FROM Task_Documents WHERE task_id = ${taskId}`;
+                    console.log('Deleted existing task documents');
+                    
+                    // Insert new documents
+                    for (const doc of documents) {
+                        await sql.query`
+                            INSERT INTO Task_Documents (task_id, DocumentName, DocURL, Created_By)
+                            VALUES (${taskId}, ${doc.name}, ${doc.url}, ${createdBy})
+                        `;
+                        console.log(`Added document '${doc.name}' to task ID ${taskId}`);
+                    }
+                } catch (docError) {
+                    console.error('Error updating task documents:', docError);
+                    // Continue with the rest of the task update even if document updates fail
+                }
             } catch (parseError) {
                 console.error('Error parsing task documents data:', parseError);
             }
@@ -304,6 +335,64 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
     } catch (err) {
         console.error('Error updating task:', err);
         res.redirect(`/project-details/${req.params.id}?error=Failed to update task`);
+    }
+});
+
+// API endpoint to get documents for a task
+router.get('/:projectId/tasks/:taskId/documents', requireLogin, async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        
+        console.log(`Fetching documents for task ID ${taskId}`);
+        
+        // Fetch documents from the database
+        const { sql } = await import('../db/sql.js');
+        
+        try {
+            // Query to fetch documents from the Task_Documents table
+            const result = await sql.query`
+                SELECT 
+                    task_id,
+                    DocumentName,
+                    DocURL,
+                    Created_By,
+                    Created_At
+                FROM Task_Documents
+                WHERE task_id = ${taskId}
+                ORDER BY Created_At DESC
+            `;
+            
+            // Return the documents
+            res.json(result.recordset || []);
+        } catch (dbError) {
+            console.log('Error querying Task_Documents table:', dbError);
+            console.log('Returning empty array for documents');
+            res.json([]);
+        }
+    } catch (err) {
+        console.error('Error fetching documents for task:', err);
+        res.status(500).json({ error: 'Failed to fetch documents' });
+    }
+});
+
+// API endpoint to remove a document from a task
+router.delete('/:projectId/tasks/:taskId/documents/:documentName', requireLogin, async (req, res) => {
+    try {
+        const { taskId, documentName } = req.params;
+        
+        console.log(`Removing document '${documentName}' from task ID ${taskId}`);
+        
+        // Delete the document from the database
+        const { sql } = await import('../db/sql.js');
+        await sql.query`
+            DELETE FROM Task_Documents 
+            WHERE task_id = ${taskId} AND DocumentName = ${documentName}
+        `;
+        
+        res.json({ success: true, message: 'Document removed from task' });
+    } catch (err) {
+        console.error('Error removing document from task:', err);
+        res.status(500).json({ error: 'Failed to remove document from task' });
     }
 });
 

@@ -481,6 +481,16 @@ function displayDocument(doc) {
 
 // Function to remove a document from the task
 function removeDocumentFromTask(docId) {
+    // Find the document in our array
+    const docToRemove = taskDocuments.find(doc => doc.id === docId);
+    if (!docToRemove) {
+        console.error('Document not found:', docId);
+        return;
+    }
+    
+    // Get the document name for the API call
+    const documentName = docToRemove.name;
+    
     // Remove from array
     taskDocuments = taskDocuments.filter(doc => doc.id !== docId);
     
@@ -495,6 +505,32 @@ function removeDocumentFromTask(docId) {
     
     // Check if we need to show the empty message
     toggleEmptyDocumentsMessage();
+    
+    // Call API to remove document from the Task_Documents table
+    const taskId = document.getElementById('taskId').value;
+    if (taskId && documentName) {
+        // Get the project ID from the URL
+        const urlParts = window.location.pathname.split('/');
+        const projectId = urlParts[urlParts.length - 1];
+        
+        // Call the API endpoint
+        fetch(`/project-details/${projectId}/tasks/${taskId}/documents/${encodeURIComponent(documentName)}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to remove document from task');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Document removed from task:', data);
+        })
+        .catch(error => {
+            console.error('Error removing document from task:', error);
+            // Continue with the UI update even if the API call fails
+        });
+    }
 }
 
 // Function to update the hidden input with documents data
@@ -646,14 +682,29 @@ function loadTaskDocuments(taskId) {
             return response.json();
         })
         .then(data => {
-            // Add each document to the task
-            data.forEach(doc => {
-                // Add to array
-                taskDocuments.push(doc);
-                
-                // Display in UI
-                displayDocument(doc);
-            });
+            console.log('Documents loaded from database:', data);
+            
+            // Check if there are any documents
+            if (data && data.length > 0) {
+                // Add each document to the task
+                data.forEach(doc => {
+                    // Create document object in the format our UI expects
+                    const document = {
+                        id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), // Generate a unique ID
+                        name: doc.DocumentName,
+                        url: doc.DocURL
+                    };
+                    
+                    // Add to array
+                    taskDocuments.push(document);
+                    
+                    // Display in UI
+                    displayDocument(document);
+                });
+            } else {
+                // No documents found
+                console.log('No documents found for this task');
+            }
             
             // Update the hidden input
             updateTaskDocumentsInput();
