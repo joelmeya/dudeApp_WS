@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Task Form JS loaded');
     
+    // Make sure the task modal is hidden on page load
+    const taskModal = document.getElementById('updateTaskModal');
+    if (taskModal) {
+        taskModal.style.display = 'none';
+    }
+    
     // Show success message if present in URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
@@ -19,8 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.history.replaceState({}, document.title, newUrl);
     }
     
-    // Initialize task modal components
-    initializeTaskModal();
+    // We'll initialize the modal components only when it's opened, not on page load
 });
 
 // Function to open the task modal and populate the form
@@ -30,6 +35,9 @@ function openTaskModal(button) {
     // Get the modal elements
     const modal = document.getElementById('updateTaskModal');
     const modalOverlay = document.getElementById('modalOverlay');
+    
+    // Initialize task modal components when opening
+    initializeTaskModal();
     
     if (!modal) {
         console.error('Modal element not found');
