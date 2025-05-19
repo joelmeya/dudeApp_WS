@@ -39,8 +39,56 @@ router.get('/:id', requireLogin, async (req, res) => {
         console.log('Session user in project details route:', req.session.user);
         console.log('Session ID:', req.session.id);
         
-        // Fetch all active users for task assignment
+        const projectId = req.params.id;
+        
+        // Import SQL module
         const { sql } = await import('../db/sql.js');
+        
+        // Fetch project details by ID
+        const projectResult = await sql.query`
+            SELECT 
+                ProjectID,
+                Project_Name,
+                Project_Type,
+                Details,
+                Date,
+                Status,
+                Acc_URL,
+                Created_AT
+            FROM Projects
+            WHERE ProjectID = ${projectId}
+        `;
+        
+        // Check if project exists
+        if (projectResult.recordset.length === 0) {
+            return res.status(404).render('error', {
+                message: 'Project not found',
+                error: { status: 404, stack: 'Project with ID ' + projectId + ' not found' },
+                user: req.session.user
+            });
+        }
+        
+        const project = projectResult.recordset[0];
+        
+        // Ensure status is properly formatted for display
+        if (project.Status) {
+            // Normalize status to uppercase for consistent comparison
+            project.Status = project.Status.trim();
+            console.log('Status after normalization:', project.Status);
+        }
+        
+        // Debug log to check project data
+        console.log('Project data from database:', {
+            id: project.ProjectID,
+            name: project.Project_Name,
+            type: project.Project_Type,
+            status: project.Status,
+            statusType: typeof project.Status,
+            statusLength: project.Status ? project.Status.length : 0,
+            details: project.Details ? project.Details.substring(0, 50) + '...' : null
+        });
+        
+        // Fetch all active users for task assignment
         const usersResult = await sql.query`
             SELECT 
                 id,
@@ -53,13 +101,12 @@ router.get('/:id', requireLogin, async (req, res) => {
         
         const users = usersResult.recordset;
         
-        // For now, we're just rendering the UI without any actual project data
-        // In the future, we'll fetch project details using req.params.id
-        
+        // Render the project details page with the fetched data
         res.render('projectDetails', { 
             user: req.session.user, 
             page: 'projectDetails',
-            projectId: req.params.id,
+            projectId: projectId,
+            project: project, // Pass project data to the template
             formSuccess: req.query.success === 'true',
             formError: req.query.error,
             users: users // Pass users to the template
@@ -71,6 +118,54 @@ router.get('/:id', requireLogin, async (req, res) => {
             error: err,
             user: req.session.user
         });
+    }
+});
+
+// Route to update project details
+router.post('/:id/update-status', requireLogin, async (req, res) => {
+    try {
+        const projectId = req.params.id;
+        const { status, projectName, details, targetDate } = req.body;
+        
+        console.log('Project update data received:', {
+            projectId,
+            status,
+            projectName,
+            details,
+            targetDate
+        });
+        
+        // Validate status (case insensitive)
+        const validStatuses = ['NEW', 'FOR REVIEW', 'ONGOING', 'COMPLETED'];
+        if (!validStatuses.includes(status.toUpperCase())) {
+            return res.redirect(`/project-details/${projectId}?error=Invalid status value`);
+        }
+        
+        // Always normalize status to uppercase for consistency in the database
+        // This ensures the dropdown will always work correctly regardless of case
+        const normalizedStatus = status.toUpperCase();
+        
+        // Validate project name
+        if (!projectName || projectName.trim() === '') {
+            return res.redirect(`/project-details/${projectId}?error=Project name cannot be empty`);
+        }
+        
+        // Update project in the database
+        const { sql } = await import('../db/sql.js');
+        await sql.query`
+            UPDATE Projects
+            SET Status = ${normalizedStatus},
+                Project_Name = ${projectName},
+                Details = ${details || null},
+                Date = ${targetDate || null}
+            WHERE ProjectID = ${projectId}
+        `;
+        
+        // Redirect back with success message
+        res.redirect(`/project-details/${projectId}?success=true`);
+    } catch (err) {
+        console.error('Error updating project status:', err);
+        res.redirect(`/project-details/${req.params.id}?error=Failed to update project status`);
     }
 });
 

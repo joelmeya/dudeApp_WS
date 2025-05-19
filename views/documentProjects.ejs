@@ -1,14 +1,14 @@
 <%- contentFor('body') %>
 <!-- Add Project Modal -->
 <div class="modal" id="newProjectModalUnique" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="height: 100%;">
         <div class="modal-header">
             <h2>Add New Project</h2>
             <button class="close-modal" onclick="document.getElementById('newProjectModalUnique').style.display='none';">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="overflow-y: auto;">
             <form id="newProjectForm" action="/documents/add" method="post">
                 <div class="form-group">
                     <label for="projectName">Project Name</label>
@@ -35,11 +35,10 @@
                     <input type="date" id="date" name="date" class="form-control" required>
                     <small class="form-text text-muted">Select the date of accreditation</small>
                 </div>
-                <div class="form-actions">
+                <div class="form-actions" style="position: sticky; bottom: 0; background-color: white; padding-top: 15px; padding-bottom: 15px; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <button type="button" class="btn-cancel" id="cancelBtn" onclick="document.getElementById('newProjectModalUnique').style.display='none';">Cancel</button>
                     <button type="submit" class="btn-save">Save</button>
                 </div>
-                <div id="formStatus" style="margin-top: 10px; display: none;"></div>
             </form>
         </div>
     </div>
@@ -139,6 +138,10 @@
 <style>
 .content {
     padding: 2rem;
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+    margin-left: 0;
 }
 
 .page-header {
@@ -321,639 +324,111 @@ table.data-table > tbody > tr > td {
 .btn-icon:hover {
     background: #E3F2FD;
 }
-</style>
 
-<style>
-/* Import the users.css styles for the modal */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    overflow-y: auto; /* Enable vertical scrolling */
-    -webkit-overflow-scrolling: touch; /* Improve scroll on iOS */
-    padding: 20px 0; /* Add padding to ensure content doesn't touch edges */
-}
-
-.modal[style*="display: block"] {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
-    background-color: white;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    animation: modalSlideIn 0.3s ease;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    transform: translateY(0);
-    opacity: 1;
-    max-height: 85vh; /* Slightly reduced height for better visibility */
-    overflow-y: auto; /* Enable scrolling within the modal content */
-    margin: 20px auto; /* Center the modal with some vertical margin */
-    -webkit-overflow-scrolling: touch; /* Improve scroll on iOS */
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 550px;
+    max-height: 90vh;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
     background-color: #f8f9fa;
-    border-radius: 16px 16px 0 0;
 }
 
 .modal-header h2 {
     margin: 0;
     font-size: 1.5rem;
     color: #2c3e50;
-    font-weight: 600;
 }
 
 .close-modal {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    background: none;
     border: none;
-    background-color: #e9ecef;
-    color: #2c3e50;
+    font-size: 1.5rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.close-modal:hover {
-    background-color: #dee2e6;
-    transform: rotate(90deg);
+    color: #666;
 }
 
 .modal-body {
-    padding: 2rem;
-}
-
-/* Form */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #2c3e50;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background-color: #f8f9fa;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #3498db;
-    background-color: white;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    outline: none;
-}
-
-.form-group select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 2.5rem;
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e0e0e0;
-    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
-    position: sticky; /* Keep buttons visible when scrolling */
+    margin-top: 1.5rem;
+    position: sticky;
     bottom: 0;
     background-color: white;
-    padding-bottom: 1rem;
-}
-
-/* Button styles */
-.btn-secondary {
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: #e9ecef;
-    color: #495057;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background-color: #dee2e6;
-}
-
-.btn-primary {
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-primary:hover {
-    background-color: #2980b9;
-}
-
-@keyframes modalSlideIn {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    padding-top: 15px;
+    padding-bottom: 15px;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 </style>
 
 <script>
-// Modal functions
-function openProjectModal() {
-    document.getElementById('newProjectModalUnique').style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    console.log('Modal opened');
-    
-    // Set today's date
-    var dateInput = document.getElementById('date');
-    if (dateInput) {
-        dateInput.value = new Date().toISOString().split('T')[0];
-    }
-}
-
-function closeProjectModal() {
-    document.getElementById('newProjectModalUnique').style.display = 'none';
-    document.body.style.overflow = ''; // Restore scrolling
-    console.log('Modal closed');
-}
-
-function testEndpoint() {
-    console.log('Testing endpoint...');
-    
-    fetch('/documents/test')
-        .then(response => {
-            console.log('Test endpoint response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Test endpoint response data:', data);
-            alert('Test endpoint working! Check console for details.');
-        })
-        .catch(error => {
-            console.error('Error testing endpoint:', error);
-            alert('Error testing endpoint. Check console for details.');
-        });
-}
-
-function submitTestForm() {
-    console.log('Submitting test form...');
-    
-    const testForm = document.getElementById('directTestForm');
-    const resultDiv = document.getElementById('testResult');
-    
-    if (!testForm) {
-        console.error('Test form not found');
-        return;
-    }
-    
-    // Get form data
-    const formData = new FormData(testForm);
-    const data = Object.fromEntries(formData);
-    console.log('Test form data:', data);
-    
-    // Add details field if missing
-    if (!data.details) {
-        data.details = 'Test details';
-    }
-    
-    // Show loading state
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<p>Sending data to server...</p>';
-    
-    // Send data to server
-    fetch('/documents/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        console.log('Test form response status:', response.status);
-        return response.json();
-    })
-    .then(result => {
-        console.log('Test form response data:', result);
-        
-        if (result.success) {
-            resultDiv.innerHTML = '<p style="color: green;">Project added successfully!</p><pre>' + JSON.stringify(result.project, null, 2) + '</pre>';
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        } else {
-            resultDiv.innerHTML = '<p style="color: red;">Error adding project: ' + result.error + '</p>';
-        }
-    })
-    .catch(error => {
-        console.error('Error adding project:', error);
-        resultDiv.innerHTML = '<p style="color: red;">Error adding project: ' + error.message + '</p>';
-    });
-}
-
-// Create a log display area
-const logContainer = document.createElement('div');
-logContainer.style.position = 'fixed';
-logContainer.style.bottom = '0';
-logContainer.style.right = '0';
-logContainer.style.width = '400px';
-logContainer.style.height = '200px';
-logContainer.style.backgroundColor = 'rgba(0,0,0,0.8)';
-logContainer.style.color = 'white';
-logContainer.style.padding = '10px';
-logContainer.style.overflow = 'auto';
-logContainer.style.zIndex = '9999';
-logContainer.style.fontFamily = 'monospace';
-logContainer.style.fontSize = '12px';
-document.body.appendChild(logContainer);
-
-// Override console.log to display in our log container
-const originalConsoleLog = console.log;
-const originalConsoleError = console.error;
-
-console.log = function() {
-    originalConsoleLog.apply(console, arguments);
-    const args = Array.from(arguments).map(arg => 
-        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
-    );
-    const logEntry = document.createElement('div');
-    logEntry.textContent = args.join(' ');
-    logContainer.appendChild(logEntry);
-    logContainer.scrollTop = logContainer.scrollHeight;
-};
-
-console.error = function() {
-    originalConsoleError.apply(console, arguments);
-    const args = Array.from(arguments).map(arg => 
-        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
-    );
-    const logEntry = document.createElement('div');
-    logEntry.style.color = 'red';
-    logEntry.textContent = 'ERROR: ' + args.join(' ');
-    logContainer.appendChild(logEntry);
-    logContainer.scrollTop = logContainer.scrollHeight;
-};
-
-// Function to close the project modal
-function closeProjectModal() {
-    const modal = document.getElementById('newProjectModalUnique');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = ''; // Restore scrolling
-        console.log('Modal closed via closeProjectModal function');
-    }
-}
-
-// Main script for document projects page
 document.addEventListener('DOMContentLoaded', function() {
-    // Reset button is now a direct link to /documents
-    
     // Get DOM elements
     const newProjectBtn = document.getElementById('newProjectBtnUnique');
-    const modal = document.getElementById('newProjectModalUnique');
-    const form = document.getElementById('newProjectForm');
-    const closeModalBtn = document.querySelector('.close-modal');
-    const cancelBtn = document.querySelector('.btn-cancel');
-    const directSubmitBtn = document.getElementById('directSubmitBtn');
-    const directAddForm = document.getElementById('directAddForm');
-    const directFormResult = document.getElementById('directFormResult');
+    const newProjectModal = document.getElementById('newProjectModalUnique');
+    const closeModalBtn = document.querySelector('#newProjectModalUnique .close-modal');
+    const cancelBtn = document.getElementById('cancelBtn');
     
-    console.log('Elements found:', {
-        newProjectBtn: newProjectBtn ? 'Found' : 'Missing',
-        modal: modal ? 'Found' : 'Missing',
-        form: form ? 'Found' : 'Missing',
-        closeModalBtn: closeModalBtn ? 'Found' : 'Missing',
-        cancelBtn: cancelBtn ? 'Found' : 'Missing',
-        directSubmitBtn: directSubmitBtn ? 'Found' : 'Missing',
-        directAddForm: directAddForm ? 'Found' : 'Missing',
-        directFormResult: directFormResult ? 'Found' : 'Missing'
-    });
-    
-    // Set today as the default date for all date inputs
-    const dateInputs = document.querySelectorAll('input[type="date"]');
-    const today = new Date().toISOString().split('T')[0];
-    
-    dateInputs.forEach(input => {
-        input.value = today;
-        console.log('Set default date for', input.id, ':', today);
-    });
-    
-    // Modal functions
-    function openModal() {
-        if (modal) {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-            console.log('Modal opened');
-        }
-    }
-    
-    function closeModal() {
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = ''; // Restore scrolling
-            console.log('Modal closed');
-            
-            // Reset form
-            if (form) {
-                form.reset();
-                // Reset date field
-                if (dateInput) {
-                    const today = new Date().toISOString().split('T')[0];
-                    dateInput.value = today;
-                }
-            }
-        }
-    }
-    
-    // Add event listeners for modal
-    if (newProjectBtn) {
+    // Open modal when button is clicked
+    if (newProjectBtn && newProjectModal) {
         newProjectBtn.addEventListener('click', function() {
-            console.log('New Project button clicked');
-            openModal();
+            newProjectModal.style.display = 'block';
         });
     }
     
-    if (closeModalBtn) {
+    // Close modal when close button is clicked
+    if (closeModalBtn && newProjectModal) {
         closeModalBtn.addEventListener('click', function() {
-            console.log('Close button clicked');
-            closeModal();
+            newProjectModal.style.display = 'none';
         });
     }
     
-    if (cancelBtn) {
+    // Close modal when cancel button is clicked
+    if (cancelBtn && newProjectModal) {
         cancelBtn.addEventListener('click', function() {
-            console.log('Cancel button clicked');
-            closeModal();
+            newProjectModal.style.display = 'none';
         });
     }
     
-    // Close modal when clicking outside
+    // Close modal when clicking outside the modal content
     window.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            console.log('Clicked outside modal');
-            closeModal();
+        if (event.target === newProjectModal) {
+            newProjectModal.style.display = 'none';
         }
     });
-    
-    // Handle direct submit test button
-    if (directSubmitBtn) {
-        directSubmitBtn.addEventListener('click', function() {
-            console.log('Direct submit test clicked');
-            
-            // Create test project data
-            const testData = {
-                projectName: 'Test Project ' + new Date().toLocaleTimeString(),
-                projectType: 'AACCUP',
-                details: 'Test details created via direct submit',
-                date: new Date().toISOString().split('T')[0]
-            };
-            
-            console.log('Sending test data:', testData);
-            
-            // Send data to server
-            fetch('/documents/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(testData)
-            })
-            .then(response => {
-                console.log('Direct submit response status:', response.status);
-                return response.json();
-            })
-            .then(result => {
-                console.log('Direct submit response data:', result);
-                
-                if (result.success) {
-                    alert('Project added successfully via direct submit!');
-                    window.location.reload();
-                } else {
-                    throw new Error(result.error || 'Failed to add project');
-                }
-            })
-            .catch(error => {
-                console.error('Error in direct submit:', error);
-                alert('Error in direct submit: ' + error.message);
-            });
-        });
-    }
-    
-    // Handle modal form submission - using the approach from the working simple form
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            console.log('Modal form submitted');
-            
-            // Get form data
-            const formData = new FormData(this);
-            const jsonData = {};
-            
-            // Convert FormData to JSON
-            formData.forEach((value, key) => {
-                jsonData[key] = value;
-            });
-            
-            console.log('Form data:', jsonData);
-            
-            // Show loading state
-            const submitButton = form.querySelector('button[type="submit"]');
-            const formStatus = document.getElementById('formStatus');
-            
-            if (submitButton) {
-                submitButton.innerHTML = 'Adding...';
-                submitButton.disabled = true;
-            }
-            
-            if (formStatus) {
-                formStatus.style.display = 'block';
-                formStatus.innerHTML = '<p>Sending data to server...</p>';
-            }
-            
-            // Send as JSON - using the exact same approach as the working simple form
-            fetch('/documents/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data);
-                
-                // Reset button state
-                if (submitButton) {
-                    submitButton.innerHTML = 'Add Project';
-                    submitButton.disabled = false;
-                }
-                
-                if (formStatus) {
-                    if (data.success) {
-                        formStatus.innerHTML = '<p style="color: green;">Project added successfully!</p>';
-                    } else {
-                        formStatus.innerHTML = '<p style="color: red;">Error: ' + (data.error || 'Unknown error') + '</p>';
-                    }
-                }
-                
-                if (data.success) {
-                    alert('Project added successfully!');
-                    window.location.href = '/documents';  // Redirect to refresh the page
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                
-                // Reset button state
-                if (submitButton) {
-                    submitButton.innerHTML = 'Add Project';
-                    submitButton.disabled = false;
-                }
-                
-                if (formStatus) {
-                    formStatus.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
-                }
-                
-                alert('Error: ' + error.message);
-            });
-            
-            // Don't close the modal immediately to show status
-            // closeModal();
-        });
-    }
-    
-    // Handle direct form submission
-    if (directAddForm) {
-        directAddForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            console.log('Direct form submitted');
-            
-            // Get form data
-            const formData = new FormData(directAddForm);
-            const data = Object.fromEntries(formData);
-            console.log('Direct form data:', data);
-            
-            // Show loading state
-            const submitButton = directAddForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton ? submitButton.innerHTML : 'Submit';
-            if (submitButton) {
-                submitButton.innerHTML = 'Adding...';
-                submitButton.disabled = true;
-            }
-            
-            // Show result area
-            if (directFormResult) {
-                directFormResult.style.display = 'block';
-                directFormResult.innerHTML = '<p>Sending data to server...</p>';
-            }
-            
-            // Send data to server
-            fetch('/documents/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                console.log('Direct form response status:', response.status);
-                return response.json();
-            })
-            .then(result => {
-                console.log('Direct form response data:', result);
-                
-                // Reset button state
-                if (submitButton) {
-                    submitButton.innerHTML = originalButtonText;
-                    submitButton.disabled = false;
-                }
-                
-                // Show result
-                if (directFormResult) {
-                    if (result.success) {
-                        directFormResult.innerHTML = '<p style="color: green;">Project added successfully!</p><pre>' + JSON.stringify(result.project, null, 2) + '</pre>';
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    } else {
-                        directFormResult.innerHTML = '<p style="color: red;">Error: ' + (result.error || 'Unknown error') + '</p>';
-                    }
-                } else {
-                    if (result.success) {
-                        alert('Project added successfully!');
-                        window.location.reload();
-                    } else {
-                        throw new Error(result.error || 'Failed to add project');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error adding project via direct form:', error);
-                
-                // Reset button state
-                if (submitButton) {
-                    submitButton.innerHTML = originalButtonText;
-                    submitButton.disabled = false;
-                }
-                
-                // Show error
-                if (directFormResult) {
-                    directFormResult.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
-                } else {
-                    alert('Error: ' + error.message);
-                }
-            });
-        });
-    }
 });
 </script>

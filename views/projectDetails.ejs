@@ -24,47 +24,49 @@
                 <div class="completion-info">
                     <div class="project-progress">
                         <span>Project %:</span>
-                        <span class="progress-badge complete">100.00% Completed</span>
+                        <span class="progress-badge <%= project.Status === 'Completed' ? 'complete' : (project.Status === 'Ongoing' ? 'in-progress' : 'pending') %>">
+                            <%= project.Status === 'Completed' ? '100.00%' : (project.Status === 'Ongoing' ? '50.00%' : '0.00%') %> Completed
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="project-body">
-            <form id="projectForm" method="post">
+            <form id="projectForm" method="post" action="/project-details/<%= projectId %>/update-status">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="projectName">Project Name</label>
-                        <input type="text" id="projectName" name="projectName" class="form-control" value="Pacucoa_Aug2024" readonly>
+                        <input type="text" id="projectName" name="projectName" class="form-control" value="<%= project.Project_Name %>">
                     </div>
                     <div class="form-group">
                         <label for="projectType">Project Type</label>
-                        <input type="text" id="projectType" name="projectType" class="form-control" value="PACUCOA" readonly>
+                        <input type="text" id="projectType" name="projectType" class="form-control" value="<%= project.Project_Type %>" readonly>
                     </div>
                     <div class="form-group">
                         <label for="status">Status</label>
-                        <select id="status" name="status" class="form-control">
+                        <select id="status" name="status" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: white;">
                             <option value="">Select Status</option>
-                            <option value="For Review" selected>For Review - Document Admin</option>
-                            <option value="New">New</option>
-                            <option value="Ongoing">Ongoing</option>
-                            <option value="Completed">Completed</option>
+                            <option value="NEW" <%= project.Status && project.Status.toUpperCase() === 'NEW' ? 'selected' : '' %>>New</option>
+                            <option value="FOR REVIEW" <%= project.Status && project.Status.toUpperCase() === 'FOR REVIEW' ? 'selected' : '' %>>For Review</option>
+                            <option value="ONGOING" <%= project.Status && project.Status.toUpperCase() === 'ONGOING' ? 'selected' : '' %>>Ongoing</option>
+                            <option value="COMPLETED" <%= project.Status && project.Status.toUpperCase() === 'COMPLETED' ? 'selected' : '' %>>Completed</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="targetDate">Target Completion Date</label>
-                        <input type="date" id="targetDate" name="targetDate" class="form-control" value="2024-07-25">
+                        <label for="targetDate">Accreditation Date</label>
+                        <input type="date" id="targetDate" name="targetDate" class="form-control" value="<%= project.Date ? new Date(project.Date).toISOString().split('T')[0] : '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="details">Details</label>
+                        <textarea id="details" name="details" class="form-control"><%= project.Details || '' %></textarea>
                     </div>
                 </div>
 
                 <!-- Assignee/s, Reviewer/s, and Accreditor/s sections removed as requested -->
 
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="details">Other Details/Info</label>
-                        <textarea id="details" name="details" class="form-control">Test Message</textarea>
-                    </div>
-                </div>
+                <!-- Notes section removed to avoid duplicate details field -->
+
 
                 <!-- Document URL section removed as requested -->
 
@@ -333,3 +335,29 @@
 
 <!-- Modal Overlay -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeTaskModal()"></div>
+
+<style>
+</style>
+
+<script>
+// Initialize the status dropdown on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure the status dropdown displays the correct value
+    const statusDropdown = document.getElementById('status');
+    if (statusDropdown) {
+        // Force the dropdown to display the selected option
+        const selectedOption = statusDropdown.options[statusDropdown.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            statusDropdown.style.color = '#333'; // Ensure text is visible
+        }
+        
+        // Add change event listener to update display when selection changes
+        statusDropdown.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                this.style.color = '#333'; // Ensure text is visible after selection
+            }
+        });
+    }
+});
+</script>
