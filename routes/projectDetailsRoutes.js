@@ -206,15 +206,48 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
             const assignedUserIdArray = assignedUsersIds.split(',').filter(id => id.trim() !== '');
             console.log('Assigned user IDs:', assignedUserIdArray);
             
-            // In a real implementation, you would:
-            // 1. Delete existing task assignments for this task
-            // 2. Insert new task assignments for each user ID
-            // For example:
-            // const { sql } = await import('../db/sql.js');
-            // await sql.query`DELETE FROM task_assignments WHERE task_id = ${taskId}`;
-            // for (const userId of assignedUserIdArray) {
-            //     await sql.query`INSERT INTO task_assignments (task_id, user_id) VALUES (${taskId}, ${userId})`;
-            // }
+            // Get the full name of the logged-in user (for assigned_by field)
+            const assignedBy = req.session.user.name;
+            
+            // Get the SQL connection
+            const { sql } = await import('../db/sql.js');
+            
+            try {
+                // First, ensure the task_assignedUsers table exists
+                try {
+                    await sql.query`
+                        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'task_assignedUsers')
+                        BEGIN
+                            CREATE TABLE task_assignedUsers (
+                                id INT IDENTITY(1,1) PRIMARY KEY,
+                                task_id INT NOT NULL,
+                                user_id INT NOT NULL,
+                                assigned_by NVARCHAR(100) NOT NULL,
+                                assigned_date DATETIME DEFAULT GETDATE()
+                            )
+                        END
+                    `;
+                    console.log('Ensured task_assignedUsers table exists');
+                } catch (tableError) {
+                    console.error('Error ensuring task_assignedUsers table exists:', tableError);
+                }
+                
+                // Delete existing task assignments for this task
+                await sql.query`DELETE FROM task_assignedUsers WHERE task_id = ${taskId}`;
+                console.log('Deleted existing task assignments');
+                
+                // Insert new task assignments for each user ID
+                for (const userId of assignedUserIdArray) {
+                    await sql.query`
+                        INSERT INTO task_assignedUsers (task_id, user_id, assigned_by)
+                        VALUES (${taskId}, ${userId}, ${assignedBy})
+                    `;
+                    console.log(`Added user ID ${userId} to task ID ${taskId}`);
+                }
+            } catch (assignmentError) {
+                console.error('Error updating task assignments:', assignmentError);
+                // Continue with the rest of the task update even if assignments fail
+            }
         }
         
         // Process task documents if present
@@ -274,31 +307,54 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
     }
 });
 
+// API endpoint to remove a user from a task
+router.delete('/:projectId/tasks/:taskId/assigned-users/:userId', requireLogin, async (req, res) => {
+    try {
+        const { taskId, userId } = req.params;
+        
+        console.log(`Removing user ID ${userId} from task ID ${taskId}`);
+        
+        // Delete the assignment from the database
+        const { sql } = await import('../db/sql.js');
+        await sql.query`
+            DELETE FROM task_assignedUsers 
+            WHERE task_id = ${taskId} AND user_id = ${userId}
+        `;
+        
+        res.json({ success: true, message: 'User removed from task' });
+    } catch (err) {
+        console.error('Error removing user from task:', err);
+        res.status(500).json({ error: 'Failed to remove user from task' });
+    }
+});
+
 // API endpoint to get assigned users for a task
 router.get('/:projectId/tasks/:taskId/assigned-users', requireLogin, async (req, res) => {
     try {
         const taskId = req.params.taskId;
         
-        // In a real implementation, you would fetch assigned users from the database
-        // For example:
-        // const { sql } = await import('../db/sql.js');
-        // const result = await sql.query`
-        //     SELECT u.id, u.name, u.role
-        //     FROM tbl_users u
-        //     JOIN task_assignments ta ON u.id = ta.user_id
-        //     WHERE ta.task_id = ${taskId}
-        //     AND u.status = 'active'
-        //     ORDER BY u.name ASC
-        // `;
-        // const assignedUsers = result.recordset;
+        // Fetch assigned users from the database
+        const { sql } = await import('../db/sql.js');
         
-        // For now, we'll return mock data for demonstration
-        const mockAssignedUsers = [
-            { id: '1', name: 'Joel Eya', role: 'Admin' },
-            { id: '2', name: 'Jane Smith', role: 'Document Reviewer' }
-        ];
-        
-        res.json(mockAssignedUsers);
+        // First check if the task_assignedUsers table exists
+        try {
+            // Query to fetch assigned users from the task_assignedUsers table
+            const result = await sql.query`
+                SELECT u.id, u.name, u.role
+                FROM tbl_users u
+                JOIN task_assignedUsers ta ON u.id = ta.user_id
+                WHERE ta.task_id = ${taskId}
+                ORDER BY u.name ASC
+            `;
+            
+            // Return the assigned users
+            res.json(result.recordset || []);
+        } catch (dbError) {
+            // If there's an error (likely because the table doesn't exist yet)
+            console.log('Error querying task_assignedUsers table:', dbError);
+            console.log('Returning empty array for assigned users');
+            res.json([]);
+        }
     } catch (err) {
         console.error('Error fetching assigned users for task:', err);
         res.status(500).json({ error: 'Failed to fetch assigned users' });

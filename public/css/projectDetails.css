@@ -1228,6 +1228,16 @@ textarea.form-control {
     margin-bottom: 0;
 }
 
+.assigned-users-list .no-users-message {
+    color: #888;
+    font-style: italic;
+    padding: 10px 0;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
 .assigned-users-list .user-info {
     display: flex;
     align-items: center;

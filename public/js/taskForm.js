@@ -240,6 +240,32 @@ function removeUserFromAssignedList(userId) {
                 }
             }
         }
+        
+        // Call API to remove user from the task_assignedUsers table
+        const taskId = document.getElementById('taskId').value;
+        if (taskId) {
+            // Get the project ID from the URL
+            const urlParts = window.location.pathname.split('/');
+            const projectId = urlParts[urlParts.length - 1];
+            
+            // Call the API endpoint
+            fetch(`/project-details/${projectId}/tasks/${taskId}/assigned-users/${userId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to remove user from task');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('User removed from task:', data);
+            })
+            .catch(error => {
+                console.error('Error removing user from task:', error);
+                // Continue with the UI update even if the API call fails
+            });
+        }
     }
 }
 
@@ -353,21 +379,33 @@ function loadAssignedUsers(taskId) {
             return response.json();
         })
         .then(data => {
-            // Add each user to the list using our helper function
-            data.forEach(user => {
-                addUserToAssignedList(user.id, user.name + ' (' + user.role + ')');
-                
-                // Disable the option for this user in the dropdown
-                const dropdown = document.getElementById('assignedUsersDropdown');
-                if (dropdown) {
-                    for (let i = 0; i < dropdown.options.length; i++) {
-                        if (dropdown.options[i].value === user.id) {
-                            dropdown.options[i].disabled = true;
-                            break;
+            // Check if there are any assigned users
+            if (data && data.length > 0) {
+                // Add each user to the list using our helper function
+                data.forEach(user => {
+                    addUserToAssignedList(user.id, user.name + ' (' + user.role + ')');
+                    
+                    // Disable the option for this user in the dropdown
+                    const dropdown = document.getElementById('assignedUsersDropdown');
+                    if (dropdown) {
+                        for (let i = 0; i < dropdown.options.length; i++) {
+                            if (dropdown.options[i].value === user.id) {
+                                dropdown.options[i].disabled = true;
+                                break;
+                            }
                         }
                     }
+                });
+            } else {
+                // Display 'No user assigned' message
+                const assignedUsersList = document.getElementById('assignedUsersList');
+                if (assignedUsersList) {
+                    const noUserMessage = document.createElement('li');
+                    noUserMessage.className = 'no-users-message';
+                    noUserMessage.textContent = 'No user assigned';
+                    assignedUsersList.appendChild(noUserMessage);
                 }
-            });
+            }
         })
         .catch(error => {
             console.error('Error loading assigned users:', error);
@@ -550,26 +588,7 @@ function handleAddDocument() {
         const name = nameInput.value.trim();
         const url = urlInput.value.trim();
         
-        // Validate inputs
-        if (!name) {
-            alertify.warning('Please enter a document name');
-            nameInput.focus();
-            return;
-        }
-        
-        if (!url) {
-            alertify.warning('Please enter a document URL');
-            urlInput.focus();
-            return;
-        }
-        
-        // Check for duplicate document names
-        const isDuplicate = taskDocuments.some(doc => doc.name.toLowerCase() === name.toLowerCase());
-        if (isDuplicate) {
-            alertify.warning('A document with this name already exists');
-            nameInput.focus();
-            return;
-        }
+        // No validation - allow empty or duplicate documents
         
         // Add the document
         addDocumentToTask(name, url);
