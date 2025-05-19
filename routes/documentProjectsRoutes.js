@@ -91,19 +91,39 @@ router.post('/add', requireLogin, async (req, res) => {
         // Extract data from request body
         const { projectName, projectType, details, date } = req.body;
         
+        // Add detailed logging for debugging
+        console.log('New project submission data:', {
+            projectName,
+            projectType,
+            details: details ? details.substring(0, 50) + '...' : null,
+            date
+        });
 
         // Validate required fields
         if (!projectName || !projectType || !date) {
-
-            return res.redirect('/documents');
+            console.log('Missing required fields:', {
+                hasProjectName: !!projectName,
+                hasProjectType: !!projectType,
+                hasDate: !!date
+            });
+            return res.redirect('/documents?error=Missing+required+fields');
+        }
         
+        // Validate project type is one of the allowed values
+        const allowedTypes = ['AACCUP', 'ISO', 'PACUCOA'];
+        if (!allowedTypes.includes(projectType)) {
+            console.log('Invalid project type:', projectType);
+            return res.redirect('/documents?error=Invalid+project+type');
         }
         
         // Insert new project into database
+        console.log('Attempting to insert project with type:', projectType);
         const result = await sql.query`
             INSERT INTO Projects (Project_Name, Project_Type, Details, Date, Status, Created_AT)
             VALUES (${projectName}, ${projectType}, ${details || null}, ${date}, 'NEW', GETDATE())
         `;
+        
+        console.log('Insert result:', result);
         
         // Get the newly created project
         //const newProject = result.recordset[0];
@@ -128,6 +148,39 @@ router.post('/add', requireLogin, async (req, res) => {
     } catch (error) {
         console.error('Error adding new project:', error);
         
+        // Log more detailed error information
+        if (error.number) {
+            console.error('SQL Error Number:', error.number);
+        }
+        if (error.state) {
+            console.error('SQL Error State:', error.state);
+        }
+        if (error.class) {
+            console.error('SQL Error Class:', error.class);
+        }
+        if (error.lineNumber) {
+            console.error('SQL Error Line Number:', error.lineNumber);
+        }
+        if (error.serverName) {
+            console.error('SQL Server Name:', error.serverName);
+        }
+        if (error.procName) {
+            console.error('SQL Procedure Name:', error.procName);
+        }
+        
+        // Check if there are any constraints or triggers causing issues
+        try {
+            const constraintCheck = await sql.query`
+                SELECT name, type_desc 
+                FROM sys.objects 
+                WHERE parent_object_id = OBJECT_ID('Projects') 
+                AND type_desc LIKE '%CONSTRAINT%'
+            `;
+            console.log('Project table constraints:', constraintCheck.recordset);
+        } catch (constraintError) {
+            console.error('Error checking constraints:', constraintError);
+        }
+        
         // Fetch all projects again
         const result = await sql.query`
             SELECT 
@@ -143,8 +196,8 @@ router.post('/add', requireLogin, async (req, res) => {
             ORDER BY Created_AT DESC
         `;
         
-        // Redirect back to the Document Projects page
-        return res.redirect('/documents');
+        // Redirect back to the Document Projects page with error message
+        return res.redirect('/documents?error=' + encodeURIComponent('Error adding project: ' + error.message));
     }
 });
 

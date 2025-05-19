@@ -484,6 +484,11 @@ textarea.form-control {
     color: #155724;
 }
 
+.status-badge.cancelled {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
 .task-options-btn {
     background: none;
     border: none;

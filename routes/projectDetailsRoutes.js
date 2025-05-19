@@ -101,12 +101,29 @@ router.get('/:id', requireLogin, async (req, res) => {
         
         const users = usersResult.recordset;
         
+        // Fetch tasks for this project
+        const tasksResult = await sql.query`
+            SELECT 
+                Task_id AS TaskID,
+                Task_Name,
+                Description,
+                Status,
+                Completion_percentage
+            FROM Tasks
+            WHERE ProjectID = ${projectId}
+            ORDER BY Task_id ASC
+        `;
+        
+        const tasks = tasksResult.recordset;
+        console.log(`Fetched ${tasks.length} tasks for project ${projectId}`);
+        
         // Render the project details page with the fetched data
         res.render('projectDetails', { 
             user: req.session.user, 
             page: 'projectDetails',
             projectId: projectId,
             project: project, // Pass project data to the template
+            tasks: tasks, // Pass tasks to the template
             formSuccess: req.query.success === 'true',
             formError: req.query.error,
             users: users // Pass users to the template
@@ -136,7 +153,7 @@ router.post('/:id/update-status', requireLogin, async (req, res) => {
         });
         
         // Validate status (case insensitive)
-        const validStatuses = ['NEW', 'FOR REVIEW', 'ONGOING', 'COMPLETED'];
+        const validStatuses = ['NEW', 'FOR REVIEW', 'ONGOING', 'COMPLETED', 'CANCELLED'];
         if (!validStatuses.includes(status.toUpperCase())) {
             return res.redirect(`/project-details/${projectId}?error=Invalid status value`);
         }
@@ -223,8 +240,32 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
             }
         }
         
-        // In a real implementation, this would update the database
-        // For now, we'll just redirect back with a success parameter for alertify
+        // Validate task status
+        const validTaskStatuses = ['New', 'Ongoing', 'Completed', 'For Review', 'Cancelled'];
+        if (!validTaskStatuses.includes(taskStatus)) {
+            return res.redirect(`/project-details/${projectId}?error=Invalid task status value`);
+        }
+        
+        // Validate percentage
+        const percentage = parseInt(percentageDropdown) || 0;
+        if (percentage < 0 || percentage > 100) {
+            return res.redirect(`/project-details/${projectId}?error=Percentage must be between 0 and 100`);
+        }
+        
+        // Update task in the database
+        const { sql } = await import('../db/sql.js');
+        await sql.query`
+            UPDATE Tasks
+            SET Status = ${taskStatus},
+                Completion_percentage = ${percentage}
+            WHERE Task_id = ${taskId}
+        `;
+        
+        console.log('Task updated successfully:', {
+            taskId,
+            status: taskStatus,
+            percentage
+        });
         
         res.redirect(`/project-details/${projectId}?success=true`);
     } catch (err) {

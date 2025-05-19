@@ -1,6 +1,7 @@
 <div class="sidebar">
     <div class="sidebar-header">
-        <h2>UPHSD DUDE</h2>
+        <h2 class="app-title">DUDE</h2>
+        <p class="app-subtitle">Decentralized University Document Ecosystem</p>
         <button class="sidebar-toggle mobile-only">
             <span class="hamburger-icon">☰</span>
         </button>
@@ -17,13 +18,13 @@
             <li class="<%= activePage === 'users' ? 'active' : '' %>">
                 <a href="/users">
                     <i class="fas fa-users"></i>
-                    <span>Users</span>
+                    <span>User Management</span>
                 </a>
             </li>
             <li class="<%= activePage === 'documents' ? 'active' : '' %>">
                 <a href="/documents">
                     <i class="fas fa-file-alt"></i>
-                    <span>Document Projects</span>
+                    <span>Document Management</span>
                 </a>
             </li>
             <li class="<%= activePage === 'transactions' ? 'active' : '' %>">
@@ -32,10 +33,10 @@
                     <span>Transactions</span>
                 </a>
             </li>
-            <li class="<%= activePage === 'logs' ? 'active' : '' %>">
-                <a href="/logs">
-                    <i class="fas fa-history"></i>
-                    <span>Access Logs</span>
+            <li class="<%= activePage === 'reports' ? 'active' : '' %>">
+                <a href="/reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
                 </a>
             </li>
             <li class="<%= activePage === 'settings' ? 'active' : '' %>">

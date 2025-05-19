@@ -2,7 +2,7 @@
 <div class="project-details-content">
     <div class="page-header">
         <div class="header-content">
-            <h1>Document Projects</h1>
+            <h1>Document Management</h1>
         </div>
     </div>
     
@@ -51,6 +51,7 @@
                             <option value="FOR REVIEW" <%= project.Status && project.Status.toUpperCase() === 'FOR REVIEW' ? 'selected' : '' %>>For Review</option>
                             <option value="ONGOING" <%= project.Status && project.Status.toUpperCase() === 'ONGOING' ? 'selected' : '' %>>Ongoing</option>
                             <option value="COMPLETED" <%= project.Status && project.Status.toUpperCase() === 'COMPLETED' ? 'selected' : '' %>>Completed</option>
+                            <option value="CANCELLED" <%= project.Status && project.Status.toUpperCase() === 'CANCELLED' ? 'selected' : '' %>>Cancelled</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -95,33 +96,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Task 1</td>
-                            <td>Complete initial documentation</td>
-                            <td><span class="status-badge complete">Completed</span></td>
-                            <td>100%</td>
-                            <td class="actions-cell">
-                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Task 2</td>
-                            <td>Review documentation with stakeholders</td>
-                            <td><span class="status-badge ongoing">Ongoing</span></td>
-                            <td>65%</td>
-                            <td class="actions-cell">
-                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Task 3</td>
-                            <td>Finalize documentation for submission</td>
-                            <td><span class="status-badge new">New</span></td>
-                            <td>0%</td>
-                            <td class="actions-cell">
-                                <button class="btn-icon" title="Edit" onclick="openTaskModal(this)"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
+                        <% if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) { %>
+                            <% tasks.forEach(function(task) { %>
+                                <tr data-task-id="<%= task.TaskID %>">
+                                    <td><%= task.Task_Name %></td>
+                                    <td><%= task.Description || '' %></td>
+                                    <td>
+                                        <% 
+                                        let statusClass = '';
+                                        if (task.Status) {
+                                            const status = task.Status.toLowerCase();
+                                            if (status === 'completed') statusClass = 'complete';
+                                            else if (status === 'ongoing') statusClass = 'ongoing';
+                                            else if (status === 'for review') statusClass = 'review';
+                                            else if (status === 'cancelled') statusClass = 'cancelled';
+                                            else statusClass = 'new';
+                                        } else {
+                                            statusClass = 'new';
+                                        }
+                                        %>
+                                        <span class="status-badge <%= statusClass %>"><%= task.Status || 'New' %></span>
+                                    </td>
+                                    <td><%= task.Completion_percentage || 0 %>%</td>
+                                    <td class="actions-cell">
+                                        <button class="btn-icon" title="Edit" onclick="openTaskModal(this)" data-task-id="<%= task.TaskID %>"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">No tasks found for this project</td>
+                            </tr>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
@@ -162,6 +168,7 @@
                                                 <option value="Ongoing">Ongoing</option>
                                                 <option value="Completed">Completed</option>
                                                 <option value="For Review">For Review</option>
+                                                <option value="Cancelled">Cancelled</option>
                                             </select>
                                         </div>
                                     </div>
@@ -337,6 +344,23 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeTaskModal()"></div>
 
 <style>
+    /* Task Description Styles */
+    .task-details-content .form-group label {
+        font-size: 12px;
+        color: #555;
+        margin-bottom: 3px;
+    }
+    
+    .task-details-content .task-description p {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    
+    /* Make task section headers smaller */
+    .task-section .section-header h4 {
+        font-size: 14px;
+        font-weight: 600;
+    }
 </style>
 
 <script>

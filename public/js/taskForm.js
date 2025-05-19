@@ -53,12 +53,13 @@ function openTaskModal(button) {
     
     try {
         // Extract task data
-        const taskId = button.getAttribute('data-task-id') || '1';
+        const taskId = button.getAttribute('data-task-id') || row.getAttribute('data-task-id') || '1';
         const taskNameText = row.cells[0].textContent.trim();
         const taskDescription = row.cells[1].textContent.trim();
         const statusBadge = row.cells[2].querySelector('.status-badge');
         const taskStatus = statusBadge ? statusBadge.textContent.trim() : 'New';
-        const taskPercentage = parseInt(row.cells[3].textContent) || 0;
+        const taskPercentageText = row.cells[3].textContent.trim();
+        const taskPercentage = parseInt(taskPercentageText) || 0;
         
         console.log('Task data extracted:', { 
             taskId, 
@@ -67,10 +68,11 @@ function openTaskModal(button) {
             taskPercentage 
         });
         
-        // Set the modal title
+        // Set the modal title (just the task name without 'Task Details:' prefix)
         const modalTitle = document.getElementById('taskModalTitle');
         if (modalTitle) {
             modalTitle.textContent = taskNameText;
+            console.log('Updated modal title to show only task name');
         }
         
         // Set form field values
