@@ -171,6 +171,7 @@ function addUserToAssignedList(userId, userName) {
     
     // Check if user is already assigned
     if (assignedUsers.includes(userId)) {
+        alertify.error('This user is already assigned to the task');
         return;
     }
     
@@ -218,6 +219,17 @@ function removeUserFromAssignedList(userId) {
         
         // Update hidden input
         assignedUsersIdsInput.value = assignedUsers.join(',');
+        
+        // Re-enable the option for this user in the dropdown
+        const dropdown = document.getElementById('assignedUsersDropdown');
+        if (dropdown) {
+            for (let i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value === userId) {
+                    dropdown.options[i].disabled = false;
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -253,6 +265,14 @@ function initializeUserAssignment() {
             const userName = dropdown.options[dropdown.selectedIndex].text;
             
             addUserToAssignedList(userId, userName);
+            
+            // Disable the option for this user in the dropdown
+            for (let i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value === userId) {
+                    dropdown.options[i].disabled = true;
+                    break;
+                }
+            }
             
             // Reset dropdown
             dropdown.selectedIndex = 0;
@@ -326,6 +346,17 @@ function loadAssignedUsers(taskId) {
             // Add each user to the list using our helper function
             data.forEach(user => {
                 addUserToAssignedList(user.id, user.name + ' (' + user.role + ')');
+                
+                // Disable the option for this user in the dropdown
+                const dropdown = document.getElementById('assignedUsersDropdown');
+                if (dropdown) {
+                    for (let i = 0; i < dropdown.options.length; i++) {
+                        if (dropdown.options[i].value === user.id) {
+                            dropdown.options[i].disabled = true;
+                            break;
+                        }
+                    }
+                }
             });
         })
         .catch(error => {
