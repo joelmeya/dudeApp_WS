@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Deployment trigger: 2025-05-20 07:23 - Force Vercel update
     console.log('Task Form JS loaded');
     
     // Make sure the task modal is hidden on page load
