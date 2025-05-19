@@ -254,35 +254,69 @@
                         </div>
                     </div>
                     
-                    <!-- Bottom Row - Task Feedbacks (full width) -->
-                    <div class="task-bottom-row">
-                        <div class="task-section">
+                    <!-- Task Feedbacks Section (full width) -->
+                    <div class="task-feedback-container">
+                        <div class="task-section feedback-section">
                             <div class="section-header">
                                 <h4>Task Feedbacks</h4>
-                                <button type="button" class="btn-sm btn-primary">Add Feedback</button>
+                                <button type="button" class="btn-sm btn-primary" id="showFeedbackForm">Add Feedback</button>
                             </div>
-                            <div class="documents-table-container">
-                                <table class="documents-table">
+                            
+                            <!-- Feedback Entry Form (initially hidden) -->
+                            <div class="feedback-form-container" id="feedbackFormContainer" style="display: none;">
+                                <div class="feedback-form">
+                                    <div class="form-group">
+                                        <label for="feedbackText">Your Feedback</label>
+                                        <textarea id="feedbackText" name="feedbackText" class="form-control" placeholder="Enter your feedback or comments about this task..." rows="3"></textarea>
+                                    </div>
+                                    <div class="feedback-form-actions">
+                                        <button type="button" class="btn-sm btn-secondary" id="cancelFeedback">Cancel</button>
+                                        <button type="button" class="btn-sm btn-primary" id="submitFeedback">Submit Feedback</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Feedback List -->
+                            <div class="documents-table-container" id="feedbackListContainer">
+                                <table class="documents-table" id="feedbackTable">
                                     <thead>
                                         <tr>
                                             <th>From</th>
-                                            <th>Feedback Details</th>
+                                            <th>Date</th>
+                                            <th>Feedback</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="feedbackTableBody">
                                         <tr>
                                             <td>Joel Eya</td>
-                                            <td>Http...</td>
-                                            <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                            <td>May 15, 2025</td>
+                                            <td class="feedback-preview">This task needs more detailed documentation before we can proceed...</td>
+                                            <td>
+                                                <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="1">View</button>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Jhen Eya</td>
-                                            <td>HTTP...</td>
-                                            <td><button type="button" class="btn-sm btn-secondary">View</button></td>
+                                            <td>May 12, 2025</td>
+                                            <td class="feedback-preview">I've reviewed the initial documents and have some suggestions for improvement...</td>
+                                            <td>
+                                                <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="2">View</button>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
+                                
+                                <!-- Empty state message when no feedbacks -->
+                                <div class="empty-state" id="noFeedbacksMessage" style="display: none;">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="empty-state-message">No feedbacks yet</div>
+                                    <div class="empty-state-action">
+                                        <button type="button" class="btn-sm btn-primary" id="addFirstFeedback">Add the first feedback</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
