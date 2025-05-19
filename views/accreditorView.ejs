@@ -1,0 +1,60 @@
+<%- include('./partials/header') %>
+<%- include('./partials/sidebar') %>
+
+<div class="content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Accreditor View</h1>
+        </div>
+    </div>
+
+    <div class="accreditor-container">
+        <div class="section-card">
+            <h2>Projects for Review</h2>
+            <div class="projects-list">
+                <p>No projects currently assigned for review.</p>
+                <!-- Projects will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+                <p>No recent activity.</p>
+                <!-- Activity will be dynamically loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>
+
+<style>
+    .accreditor-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .section-card {
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+    }
+
+    .section-card h2 {
+        margin-bottom: 15px;
+        color: var(--accent-color);
+        font-size: 18px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .accreditor-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

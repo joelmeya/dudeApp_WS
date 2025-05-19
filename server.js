@@ -9,6 +9,7 @@ import loginRoutes from './routes/loginRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import apiRoutes from './routes/apiRoutes.js';
 import projectDetailsRoutes from './routes/projectDetailsRoutes.js';
+import accreditorRoutes from './routes/accreditorRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -129,6 +130,7 @@ app.use('/projects', projectRoutes);
 app.use('/documents', documentProjectsRoutes);
 app.use('/users', userRoutes);
 app.use('/api', apiRoutes);
+app.use('/accreditor', accreditorRoutes);
 app.use('/project-details', projectDetailsRoutes);
 
 // Root Route
