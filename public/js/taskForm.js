@@ -731,8 +731,247 @@ function initializeTaskModal() {
     // Then initialize user assignment
     initializeUserAssignment();
     
+    // Initialize feedback functionality
+    if (typeof initializeFeedbackForm === 'function') {
+        console.log('Initializing feedback functionality');
+        initializeFeedbackForm();
+    } else {
+        console.warn('Feedback form initialization function not found');
+        // Fallback implementation for feedback functionality
+        initializeFeedbackFallback();
+    }
+    
     // Finally initialize documents functionality
     initializeDocuments();
+}
+
+// Fallback implementation for feedback functionality
+function initializeFeedbackFallback() {
+    console.log('Using fallback feedback initialization');
+    
+    // Add event listener to the Add Feedback button
+    const showFeedbackFormBtn = document.getElementById('showFeedbackForm');
+    if (showFeedbackFormBtn) {
+        showFeedbackFormBtn.addEventListener('click', function() {
+            console.log('Add Feedback button clicked');
+            const feedbackFormContainer = document.getElementById('feedbackFormContainer');
+            if (feedbackFormContainer) {
+                feedbackFormContainer.style.display = 'block';
+                
+                // Clear any previous input
+                const feedbackText = document.getElementById('feedbackText');
+                if (feedbackText) {
+                    feedbackText.value = '';
+                    feedbackText.focus();
+                }
+            }
+        });
+    }
+    
+    // Add event listener to the Cancel button
+    const cancelFeedbackBtn = document.getElementById('cancelFeedback');
+    if (cancelFeedbackBtn) {
+        cancelFeedbackBtn.addEventListener('click', function() {
+            console.log('Cancel Feedback button clicked');
+            const feedbackFormContainer = document.getElementById('feedbackFormContainer');
+            if (feedbackFormContainer) {
+                feedbackFormContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Add event listener to the Submit button
+    const submitFeedbackBtn = document.getElementById('submitFeedback');
+    if (submitFeedbackBtn) {
+        submitFeedbackBtn.addEventListener('click', function() {
+            console.log('Submit Feedback button clicked');
+            // Get the feedback text
+            const feedbackText = document.getElementById('feedbackText');
+            
+            if (!feedbackText || !feedbackText.value.trim()) {
+                alertify.error('Please enter your feedback');
+                return;
+            }
+            
+            // Get the feedback data
+            const feedbackContent = feedbackText.value.trim();
+            const currentDate = new Date().toLocaleDateString();
+            const userName = 'Current User'; // This would normally come from the session
+            
+            // Add the feedback to the table
+            const feedbackId = new Date().getTime(); // Generate a unique ID
+            const feedbackTableBody = document.getElementById('feedbackTableBody');
+            
+            if (feedbackTableBody) {
+                // Create a new row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${userName}</td>
+                    <td>${currentDate}</td>
+                    <td class="feedback-preview">${feedbackContent}</td>
+                    <td>
+                        <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="${feedbackId}">View</button>
+                    </td>
+                `;
+                
+                // Add the row to the table (at the top)
+                feedbackTableBody.insertBefore(row, feedbackTableBody.firstChild);
+                
+                // Show the table and hide the empty message
+                const feedbackTable = document.getElementById('feedbackTable');
+                const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+                
+                if (feedbackTable) feedbackTable.style.display = 'table';
+                if (noFeedbacksMessage) noFeedbacksMessage.style.display = 'none';
+                
+                // Hide the form
+                const feedbackFormContainer = document.getElementById('feedbackFormContainer');
+                if (feedbackFormContainer) {
+                    feedbackFormContainer.style.display = 'none';
+                }
+                
+                // Show success message
+                alertify.success('Feedback submitted successfully');
+                
+                // Add event listener to the new view button
+                const viewBtn = row.querySelector('.view-feedback');
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', function() {
+                        viewFeedbackFallback(feedbackId);
+                    });
+                }
+            }
+        });
+    }
+    
+    // Add event listeners to all View buttons
+    const viewFeedbackBtns = document.querySelectorAll('.view-feedback');
+    viewFeedbackBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const feedbackId = this.getAttribute('data-feedback-id');
+            viewFeedbackFallback(feedbackId);
+        });
+    });
+    
+    // Check if there are any feedbacks and show/hide elements accordingly
+    checkFeedbacksExistence();
+    
+    // Create feedback modal if it doesn't exist
+    createFeedbackModalFallback();
+}
+
+// Function to check if there are any feedbacks and show/hide elements accordingly
+function checkFeedbacksExistence() {
+    const feedbackTable = document.getElementById('feedbackTable');
+    const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+    const feedbackTableBody = document.getElementById('feedbackTableBody');
+    
+    if (!feedbackTable || !noFeedbacksMessage || !feedbackTableBody) return;
+    
+    // Check if there are any rows in the feedback table (excluding header)
+    const hasRows = feedbackTableBody.querySelectorAll('tr').length > 0;
+    
+    // Show/hide elements based on whether there are feedbacks
+    feedbackTable.style.display = hasRows ? 'table' : 'none';
+    noFeedbacksMessage.style.display = hasRows ? 'none' : 'flex';
+}
+
+// Function to view feedback (fallback implementation)
+function viewFeedbackFallback(feedbackId) {
+    console.log('Viewing feedback with ID:', feedbackId);
+    
+    try {
+        // Get the feedback data from the table row
+        const feedbackButton = document.querySelector(`.view-feedback[data-feedback-id="${feedbackId}"]`);
+        if (!feedbackButton) {
+            console.error('Feedback button not found for ID:', feedbackId);
+            alertify.error('Feedback not found');
+            return;
+        }
+        
+        const feedbackRow = feedbackButton.closest('tr');
+        if (!feedbackRow) {
+            console.error('Feedback row not found for button:', feedbackButton);
+            alertify.error('Feedback not found');
+            return;
+        }
+        
+        // Get the feedback data
+        const from = feedbackRow.cells[0].textContent;
+        const date = feedbackRow.cells[1].textContent;
+        const text = feedbackRow.cells[2].textContent;
+        
+        console.log('Feedback data:', { from, date, text });
+        
+        // Ensure the modal exists
+        if (!document.getElementById('feedbackViewModal')) {
+            console.log('Creating feedback modal');
+            createFeedbackModalFallback();
+        }
+        
+        // Update the modal content
+        document.getElementById('feedbackModalFrom').textContent = from;
+        document.getElementById('feedbackModalDate').textContent = date;
+        document.getElementById('feedbackModalContent').textContent = text;
+        
+        // Show the modal
+        const modal = document.getElementById('feedbackViewModal');
+        if (modal) {
+            modal.style.display = 'block';
+            console.log('Feedback modal displayed');
+        } else {
+            console.error('Feedback modal not found');
+        }
+    } catch (error) {
+        console.error('Error viewing feedback:', error);
+        alertify.error('Error viewing feedback');
+    }
+}
+
+// Function to create the feedback modal (fallback implementation)
+function createFeedbackModalFallback() {
+    // Check if the modal already exists
+    if (document.getElementById('feedbackViewModal')) return;
+    
+    // Create the modal
+    const modal = document.createElement('div');
+    modal.id = 'feedbackViewModal';
+    modal.className = 'feedback-modal';
+    modal.innerHTML = `
+        <div class="feedback-modal-content">
+            <div class="feedback-modal-header">
+                <h3 class="feedback-modal-title">Feedback Details</h3>
+                <button class="feedback-modal-close">&times;</button>
+            </div>
+            <div class="feedback-modal-body">
+                <div class="feedback-meta">
+                    <span class="feedback-from">From: <strong id="feedbackModalFrom">User Name</strong></span>
+                    <span class="feedback-date" id="feedbackModalDate">Date</span>
+                </div>
+                <div class="feedback-content" id="feedbackModalContent">
+                    Feedback content will appear here.
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add the modal to the body
+    document.body.appendChild(modal);
+    
+    // Add event listener to close button
+    const closeBtn = modal.querySelector('.feedback-modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 }
 
 // Function to remove all event handlers to prevent duplicates

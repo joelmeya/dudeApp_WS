@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Feedback Form JS loaded');
-    initializeFeedbackForm();
+    // We'll initialize the feedback form when the task modal is opened
 });
 
 /**
