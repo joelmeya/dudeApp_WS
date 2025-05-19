@@ -122,9 +122,13 @@ function openTaskModal(button) {
         initializeUserAssignment();
         initializeDocuments();
         
-        // Load data for this task
+        // Load data for this task with slight delay between calls to prevent interference
         loadAssignedUsers(taskId);
-        loadTaskDocuments(taskId);
+        
+        // Add a small delay before loading documents to prevent race conditions
+        setTimeout(() => {
+            loadTaskDocuments(taskId);
+        }, 100);
         
         console.log('Modal should be visible now');
     } catch (error) {
