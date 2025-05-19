@@ -751,7 +751,11 @@ function loadTaskDocuments(taskId) {
             if (!response.ok) {
                 throw new Error('Failed to fetch task documents');
             }
-            return response.json();
+            return response.json().catch(err => {
+                console.warn('JSON parsing failed for documents, trying fallback:', err);
+                // If JSON parsing fails (e.g., HTML response), try fallback
+                return [];
+            });
         })
         .then(data => {
             console.log('Documents loaded from database:', data);
@@ -786,7 +790,59 @@ function loadTaskDocuments(taskId) {
         })
         .catch(error => {
             console.error('Error loading task documents:', error);
-            alertify.error('Failed to load task documents');
+            
+            // Try alternative approach with XMLHttpRequest for maximum compatibility with Vercel
+            console.log('Trying fallback with XMLHttpRequest for documents...');
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/project-details/${projectId}/tasks/${taskId}/documents`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        // Try to parse the response as JSON
+                        const documents = JSON.parse(xhr.responseText);
+                        console.log('Fallback successful, documents:', documents);
+                        
+                        // Process the documents
+                        if (documents && documents.length > 0) {
+                            // Add each document to the task
+                            documents.forEach(doc => {
+                                // Create document object in the format our UI expects
+                                const document = {
+                                    id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9), // Generate a unique ID
+                                    name: doc.DocumentName,
+                                    url: doc.DocURL
+                                };
+                                
+                                // Add to array
+                                taskDocuments.push(document);
+                                
+                                // Display in UI
+                                displayDocument(document);
+                            });
+                            
+                            // Update the hidden input
+                            updateTaskDocumentsInput();
+                        }
+                        
+                        // Toggle empty message regardless of whether we found documents
+                        toggleEmptyDocumentsMessage();
+                    } catch (e) {
+                        console.error('Error parsing fallback documents response:', e);
+                        alertify.error('Failed to load task documents');
+                        toggleEmptyDocumentsMessage(); // Show empty message as fallback
+                    }
+                } else {
+                    console.error('Fallback request for documents failed with status:', xhr.status);
+                    alertify.error('Failed to load task documents');
+                    toggleEmptyDocumentsMessage(); // Show empty message as fallback
+                }
+            };
+            xhr.onerror = function() {
+                console.error('Network error in fallback request for documents');
+                alertify.error('Failed to load task documents');
+                toggleEmptyDocumentsMessage(); // Show empty message as fallback
+            };
+            xhr.send();
         });
 }
 
