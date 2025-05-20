@@ -18,6 +18,12 @@
     color: #2c3e50;
 }
 
+.header-content .subtitle {
+    color: #7f8c8d;
+    margin: 0.5rem 0 0 0;
+    font-size: 0.95rem;
+}
+
 .new-project-btn {
     background-color: #2196F3;
     color: white;
