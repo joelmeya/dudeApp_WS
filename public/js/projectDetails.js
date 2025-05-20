@@ -64,27 +64,28 @@ function saveTaskChanges() {
     const taskDescription = document.getElementById('taskDescription')?.value || '';
     const taskStatus = document.getElementById('taskStatus')?.value || '';
     const taskAssignee = document.getElementById('taskAssignee')?.value || '';
-    const taskPercentage = document.getElementById('percentageDropdown')?.value || 0;
-    
-    // Get document URLs
-    const documentUrl1 = document.getElementById('documentUrl1')?.value || '';
-    const documentUrl2 = document.getElementById('documentUrl2')?.value || '';
+    const taskPercentage = document.getElementById('percentageSlider')?.value || 0;
+    const taskId = document.getElementById('taskId')?.value;
     
     console.log('Task data to save:', {
+        taskId,
         taskDescription,
         taskStatus,
         taskAssignee,
-        taskPercentage,
-        documentUrl1,
-        documentUrl2
+        taskPercentage
     });
     
-    // In a real implementation, this would send data to the server
-    // For now, just show a success message using alertify
-    alertify.success('Task updated successfully!');
-    
-    // Close the modal
-    closeTaskModal();
+    // Submit the form to update the task on the server
+    const form = document.getElementById('taskUpdateForm');
+    if (form) {
+        // Let the form submit normally to update the task on the server
+        // The page will reload with updated data
+        return true;
+    } else {
+        console.error('Task update form not found');
+        alertify.error('Error updating task');
+        return false;
+    }
 }
 
 // Global function to close the task modal - accessible from inline onclick handlers
@@ -161,8 +162,87 @@ function openTaskModal(button) {
     console.log('Modal should be visible now');
 }
 
+// Function to calculate and update project percentage based on task percentages
+function updateProjectPercentage() {
+    console.log('Calculating project percentage');
+    
+    // Get all task rows from the table
+    const taskRows = document.querySelectorAll('.task-table tbody tr[data-task-id]');
+    console.log('Found task rows:', taskRows.length);
+    
+    // If no tasks, set percentage to 0
+    if (!taskRows || taskRows.length === 0) {
+        console.log('No tasks found, setting project percentage to 0%');
+        setProjectPercentage(0);
+        return;
+    }
+    
+    let totalPercentage = 0;
+    let taskCount = 0;
+    
+    // Sum up all task percentages
+    for (let i = 0; i < taskRows.length; i++) {
+        const row = taskRows[i];
+        if (row.cells && row.cells.length > 3) {
+            // Remove the % symbol if present
+            const percentageText = row.cells[3].textContent.replace('%', '').trim();
+            const percentage = parseInt(percentageText) || 0;
+            console.log(`Row ${i} percentage: ${percentage}%`);
+            totalPercentage += percentage;
+            taskCount++;
+        }
+    }
+    
+    // Calculate average percentage
+    const averagePercentage = taskCount > 0 ? Math.round((totalPercentage / taskCount) * 100) / 100 : 0;
+    console.log(`Project percentage calculated: ${averagePercentage}% (${totalPercentage} / ${taskCount})`);
+    
+    // Update the project percentage in the UI
+    setProjectPercentage(averagePercentage);
+}
+
+// Function to update the project percentage display
+function setProjectPercentage(percentage) {
+    console.log('Setting project percentage to:', percentage);
+    
+    // Get the project percentage badge by ID
+    const progressBadge = document.getElementById('projectPercentageBadge');
+    
+    if (!progressBadge) {
+        console.error('Project progress badge not found');
+        return;
+    }
+    
+    // Format the percentage with 2 decimal places
+    const formattedPercentage = percentage.toFixed(2);
+    
+    // Set the badge text directly
+    progressBadge.innerHTML = formattedPercentage + '% Completed';
+    
+    // Update the badge class based on the percentage
+    progressBadge.className = 'progress-badge';
+    if (percentage >= 100) {
+        progressBadge.classList.add('complete');
+    } else if (percentage > 0) {
+        progressBadge.classList.add('in-progress');
+    } else {
+        progressBadge.classList.add('pending');
+    }
+    
+    console.log(`Project percentage display updated to ${formattedPercentage}%`);
+}
+
+// Add a global console log to verify the script is loaded
+console.log('Project Details JS file loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Project Details JS loaded');
+    console.log('DOMContentLoaded event fired');
+    
+    // Force calculation after a short delay to ensure DOM is ready
+    setTimeout(function() {
+        console.log('Running delayed project percentage calculation');
+        updateProjectPercentage();
+    }, 1000);
     
     // Project Form Submit Handler
     const projectForm = document.querySelector('form');
@@ -262,6 +342,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Run setup immediately
     setupEditButtons();
+    
+    // Calculate project percentage after task updates
+    if (window.location.search.includes('updated=true')) {
+        console.log('Task was updated, recalculating project percentage');
+        updateProjectPercentage();
+        
+        // Remove the query parameter to avoid recalculating on page refresh
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
     
     // Also run after a short delay to ensure DOM is fully processed
     setTimeout(setupEditButtons, 500);

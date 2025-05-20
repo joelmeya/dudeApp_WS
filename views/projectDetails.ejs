@@ -24,8 +24,8 @@
                 <div class="completion-info">
                     <div class="project-progress">
                         <span>Project %:</span>
-                        <span class="progress-badge <%= project.Status === 'Completed' ? 'complete' : (project.Status === 'Ongoing' ? 'in-progress' : 'pending') %>">
-                            <%= project.Status === 'Completed' ? '100.00%' : (project.Status === 'Ongoing' ? '50.00%' : '0.00%') %> Completed
+                        <span id="projectPercentageBadge" class="progress-badge pending">
+                            Calculating... Completed
                         </span>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
             <button class="close-modal" onclick="closeTaskModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="taskUpdateForm" method="post" action="/project-details/<%= projectId %>/update-task">
+            <form id="taskUpdateForm" method="post" action="/project-details/<%= projectId %>/update-task" onsubmit="return saveTaskChanges()">
                 <input type="hidden" id="taskId" name="taskId" value="">
                 
                 <div class="task-form-container">
@@ -385,3 +385,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Include project details JavaScript -->
+<script src="/js/projectDetails.js"></script>

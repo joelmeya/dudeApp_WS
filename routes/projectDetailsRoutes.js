@@ -331,7 +331,7 @@ router.post('/:id/update-task', requireLogin, async (req, res) => {
             percentage
         });
         
-        res.redirect(`/project-details/${projectId}?success=true`);
+        res.redirect(`/project-details/${projectId}?success=true&updated=true`);
     } catch (err) {
         console.error('Error updating task:', err);
         res.redirect(`/project-details/${req.params.id}?error=Failed to update task`);
