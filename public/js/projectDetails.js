@@ -235,14 +235,93 @@ function setProjectPercentage(percentage) {
 // Add a global console log to verify the script is loaded
 console.log('Project Details JS file loaded');
 
+// Direct update function that doesn't rely on complex calculations
+function directUpdatePercentage() {
+    console.log('Directly updating project percentage');
+    
+    // Get the badge element
+    const badge = document.getElementById('projectPercentageBadge');
+    if (!badge) {
+        console.error('Badge element not found!');
+        return;
+    }
+    
+    // Log the current HTML content of the badge
+    console.log('Current badge HTML:', badge.innerHTML);
+    
+    // Get all task percentages from the table
+    const percentages = [];
+    const rows = document.querySelectorAll('.task-table tbody tr');
+    console.log('Found rows:', rows.length);
+    
+    // Log the HTML of the table for debugging
+    const table = document.querySelector('.task-table');
+    if (table) {
+        console.log('Table HTML (first 200 chars):', table.innerHTML.substring(0, 200));
+    }
+    
+    // Check each row in detail
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        console.log(`Row ${i} HTML:`, row.outerHTML);
+        
+        if (row.cells && row.cells.length > 3) {
+            // Get the percentage cell
+            const cell = row.cells[3];
+            console.log(`Row ${i} cell 3 HTML:`, cell.innerHTML);
+            
+            // Extract text and clean it
+            const text = cell.textContent.trim().replace('%', '');
+            console.log(`Row ${i} cleaned text:`, text);
+            
+            // Parse as integer
+            const value = parseInt(text) || 0;
+            console.log(`Row ${i} parsed value:`, value);
+            
+            // Add to percentages array
+            percentages.push(value);
+        } else {
+            console.log(`Row ${i} has insufficient cells:`, row.cells ? row.cells.length : 'no cells');
+        }
+    }
+    
+    console.log('Collected percentages:', percentages);
+    
+    // Calculate average
+    let total = 0;
+    for (let i = 0; i < percentages.length; i++) {
+        total += percentages[i];
+    }
+    
+    const average = percentages.length > 0 ? total / percentages.length : 0;
+    const formatted = average.toFixed(2);
+    
+    console.log(`Average percentage: ${formatted}% (${total}/${percentages.length})`);
+    
+    // Update the badge directly
+    badge.innerHTML = formatted + '% Completed';
+    
+    // Update class
+    badge.className = 'progress-badge';
+    if (average >= 100) {
+        badge.classList.add('complete');
+    } else if (average > 0) {
+        badge.classList.add('in-progress');
+    } else {
+        badge.classList.add('pending');
+    }
+    
+    console.log('Badge updated to:', badge.innerHTML);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded event fired');
     
-    // Force calculation after a short delay to ensure DOM is ready
-    setTimeout(function() {
-        console.log('Running delayed project percentage calculation');
-        updateProjectPercentage();
-    }, 1000);
+    // Try to update immediately
+    directUpdatePercentage();
+    
+    // Also try after a delay
+    setTimeout(directUpdatePercentage, 1000);
     
     // Project Form Submit Handler
     const projectForm = document.querySelector('form');

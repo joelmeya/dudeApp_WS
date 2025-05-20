@@ -24,9 +24,23 @@
                 <div class="completion-info">
                     <div class="project-progress">
                         <span>Project %:</span>
-                        <span id="projectPercentageBadge" class="progress-badge pending">
-                            Calculating... Completed
-                        </span>
+                        <% 
+                            // Calculate project percentage directly in EJS
+                            let totalPercentage = 0;
+                            let taskCount = 0;
+                            
+                            if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) {
+                                tasks.forEach(function(task) {
+                                    const percentage = task.Completion_percentage || 0;
+                                    totalPercentage += percentage;
+                                    taskCount++;
+                                });
+                            }
+                            
+                            const avgPercentage = taskCount > 0 ? (totalPercentage / taskCount).toFixed(2) : '0.00';
+                            const badgeClass = avgPercentage >= 100 ? 'complete' : (avgPercentage > 0 ? 'in-progress' : 'pending');
+                        %>
+                        <span id="projectPercentageBadge" class="progress-badge <%= badgeClass %>"><%= avgPercentage %>% Completed</span>
                     </div>
                 </div>
             </div>
@@ -385,6 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Project percentage is now calculated server-side in EJS -->
 
 <!-- Include project details JavaScript -->
 <script src="/js/projectDetails.js"></script>
