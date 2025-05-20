@@ -44,12 +44,32 @@ document.addEventListener('DOMContentLoaded', function() {
         return pathParts[pathParts.length - 1];
     }
     
-    // Show loading state in iframe
+    // Simple loading state function
     function showLoading(frame) {
-        frame.src = 'about:blank';
-        const doc = frame.contentDocument || frame.contentWindow.document;
-        doc.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:Arial,sans-serif;"><div style="text-align:center;"><div style="border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;width:40px;height:40px;margin:0 auto 20px;animation:spin 2s linear infinite;"></div><p>Loading content...</p></div></div>';
-        doc.head.innerHTML = '<style>@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>';
+        frame.style.opacity = '0.5'; // Dim the iframe to indicate loading
+    }
+    
+    function hideLoading(frame) {
+        frame.style.opacity = '1'; // Restore opacity when loaded
+    }
+    
+    // Load document in iframe without URL transformation
+    function loadDocumentInIframe(frame, url) {
+        // Show loading state
+        showLoading(frame);
+        
+        console.log('Loading document URL:', url);
+        
+        // Load the URL directly without transformation
+        frame.src = url;
+        
+        // Add load event listener
+        const loadHandler = function() {
+            hideLoading(frame);
+            frame.removeEventListener('load', loadHandler);
+        };
+        
+        frame.addEventListener('load', loadHandler);
     }
     
     // Handle task selection
@@ -65,9 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Task selected:', taskId, 'Project ID:', projectId);
         
-        // Show loading state
-        showLoading(instrumentFrame);
-        
         // Fetch task details from the API
         fetch(`/accreditor/task/${projectId}/${taskId}`)
             .then(response => {
@@ -82,13 +99,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success && data.task) {
                     // Update the instrument iframe with the URL from the task
                     if (data.task.accreditation_Instrument_URL) {
-                        instrumentFrame.src = data.task.accreditation_Instrument_URL;
+                        // Use our new loading function that handles Google Docs properly
+                        loadDocumentInIframe(instrumentFrame, data.task.accreditation_Instrument_URL);
                     } else {
                         instrumentFrame.src = '/static/instrument-placeholder.html';
                     }
                     
                     // Keep evidence iframe with placeholder for now
-                    // We'll implement this in a future update
                     evidenceFrame.src = '/static/evidence-placeholder.html';
                 }
             })
