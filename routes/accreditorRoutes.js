@@ -50,16 +50,31 @@ router.get('/instrument/:projectId', requireLogin, async (req, res) => {
         
         const projectId = req.params.projectId;
         
-        // Fetch project details - this is a placeholder query that will be replaced with actual logic later
+        // Fetch project details
         const pool = await sql.connect();
-        const result = await pool.request()
+        const projectResult = await pool.request()
             .input('projectId', sql.Int, projectId)
             .query(`SELECT * FROM Projects WHERE ProjectID = @projectId`);
         
-        const project = result.recordset[0] || { Project_Name: 'Pacucoa_OCT2024' };
+        const project = projectResult.recordset[0] || { Project_Name: 'Pacucoa_OCT2024' };
         
-        // For now, we'll use placeholder data for tasks and documents
-        // In a real implementation, these would be fetched from the database
+        // Fetch tasks for this project
+        const tasksResult = await pool.request()
+            .input('projectId', sql.Int, projectId)
+            .query(`
+                SELECT 
+                    Task_id AS TaskID,
+                    Task_Name,
+                    Description,
+                    Status,
+                    Completion_percentage
+                FROM Tasks
+                WHERE ProjectID = @projectId
+                ORDER BY Task_id ASC
+            `);
+        
+        const tasks = tasksResult.recordset;
+        console.log(`Fetched ${tasks.length} tasks for project ${projectId}`);
         
         // Render the accreditor instrument page
         res.render('accreditorInstrument', {
@@ -69,8 +84,7 @@ router.get('/instrument/:projectId', requireLogin, async (req, res) => {
             title: 'Accreditor Instrument',
             projectName: project.Project_Name,
             projectId: projectId,
-            // Placeholder data - would be replaced with database queries
-            tasks: [],
+            tasks: tasks, // Pass the fetched tasks to the template
             documents: [],
             evidenceUrl: '/static/evidence-placeholder.html',
             instrumentUrl: '/static/instrument-placeholder.html',
@@ -91,6 +105,49 @@ router.get('/instrument/:projectId', requireLogin, async (req, res) => {
             instrumentUrl: '/static/instrument-placeholder.html',
             error: 'An error occurred while loading project data.'
         });
+    }
+});
+
+// API endpoint to get task instrument URL
+router.get('/task/:projectId/:taskId', requireLogin, async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        const taskId = req.params.taskId;
+        
+        // Validate inputs
+        if (!projectId || !taskId) {
+            return res.status(400).json({ error: 'Project ID and Task ID are required' });
+        }
+        
+        // Connect to database and fetch task details
+        const pool = await sql.connect();
+        const result = await pool.request()
+            .input('projectId', sql.Int, projectId)
+            .input('taskId', sql.Int, taskId)
+            .query(`
+                SELECT 
+                    Task_id AS TaskID,
+                    Task_Name,
+                    accreditation_Instrument_URL
+                FROM Tasks
+                WHERE ProjectID = @projectId AND Task_id = @taskId
+            `);
+        
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        const task = result.recordset[0];
+        console.log('Task details:', task);
+        
+        // Return the task details
+        res.json({
+            success: true,
+            task: task
+        });
+    } catch (error) {
+        console.error('Error fetching task details:', error);
+        res.status(500).json({ error: 'Failed to fetch task details' });
     }
 });
 

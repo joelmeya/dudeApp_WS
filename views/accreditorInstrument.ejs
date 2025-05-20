@@ -12,11 +12,12 @@
                 <label for="taskSelect">Task</label>
                 <select id="taskSelect" class="form-control">
                     <% if (locals.tasks && tasks.length > 0) { %>
+                        <option value="">Select a Task</option>
                         <% tasks.forEach(function(task) { %>
-                            <option value="<%= task.id %>" <%= locals.selectedTask && selectedTask === task.id ? 'selected' : '' %>><%= task.name %></option>
+                            <option value="<%= task.TaskID %>" <%= locals.selectedTask && selectedTask === task.TaskID ? 'selected' : '' %>><%= task.Task_Name %></option>
                         <% }); %>
                     <% } else { %>
-                        <option value="area3" selected>AREA 3</option>
+                        <option value="" selected>No tasks available</option>
                     <% } %>
                 </select>
             </div>
