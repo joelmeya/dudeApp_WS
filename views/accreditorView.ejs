@@ -1,5 +1,4 @@
-<%- include('./partials/header') %>
-<%- include('./partials/sidebar') %>
+<%- contentFor('body') %>
 
 <div class="content">
     <div class="page-header">
@@ -8,53 +7,160 @@
         </div>
     </div>
 
-    <div class="accreditor-container">
-        <div class="section-card">
-            <h2>Projects for Review</h2>
-            <div class="projects-list">
-                <p>No projects currently assigned for review.</p>
-                <!-- Projects will be dynamically loaded here -->
-            </div>
-        </div>
-
-        <div class="section-card">
-            <h2>Recent Activity</h2>
-            <div class="activity-list">
-                <p>No recent activity.</p>
-                <!-- Activity will be dynamically loaded here -->
-            </div>
-        </div>
+    <!-- Projects Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Type</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (locals.projects && projects.length > 0) { %>
+                    <% projects.forEach(function(project) { %>
+                        <tr style="line-height: 1.2; height: auto;">
+                            <td><%= project.Project_Name || 'Untitled' %></td>
+                            <td><%= project.Project_Type || 'N/A' %></td>
+                            <td><%= project.Details || 'No details available' %></td>
+                            <td><span class="status-badge <%= (project.Status || 'pending').toLowerCase().replace(' ', '-') %>"><%= project.Status || 'Pending' %></span></td>
+                            <td>
+                                <a href="/project-details/<%= project.ProjectID %>" class="btn-icon" title="View Details" style="font-size: 1.2rem; padding: 8px 12px; display: inline-block; text-decoration: none;">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" class="text-center">No projects found for review</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<%- include('./partials/footer') %>
-
 <style>
-    .accreditor-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding: 20px;
-    }
+.content {
+    padding: 2rem;
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+    margin-left: 0;
+}
 
-    .section-card {
-        background-color: var(--bg-secondary);
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 20px;
-    }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
 
-    .section-card h2 {
-        margin-bottom: 15px;
-        color: var(--accent-color);
-        font-size: 18px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-    }
+.header-content h1 {
+    font-size: 1.75rem;
+    margin: 0;
+    color: #2c3e50;
+}
 
-    @media (max-width: 768px) {
-        .accreditor-container {
-            grid-template-columns: 1fr;
-        }
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #f5f7fa;
+    color: #2c3e50;
+    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.new {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-badge.for-review {
+    background-color: #fff8e1;
+    color: #ffa000;
+}
+
+.status-badge.ongoing {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-badge.completed {
+    background-color: #e0f2f1;
+    color: #00897b;
+}
+
+.status-badge.pending {
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+.btn-icon {
+    background-color: #2196F3;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
+    background-color: #1976D2;
+}
+
+.text-center {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 1rem;
     }
+    
+    .data-table {
+        font-size: 0.9rem;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
 </style>
