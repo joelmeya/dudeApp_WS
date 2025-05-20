@@ -108,6 +108,43 @@ router.get('/instrument/:projectId', requireLogin, async (req, res) => {
     }
 });
 
+// API endpoint to get documents for a task
+router.get('/documents/:taskId', requireLogin, async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        
+        // Validate inputs
+        if (!taskId) {
+            return res.status(400).json({ error: 'Task ID is required' });
+        }
+        
+        // Connect to database and fetch documents
+        const pool = await sql.connect();
+        const result = await pool.request()
+            .input('taskId', sql.Int, taskId)
+            .query(`
+                SELECT 
+                    DocumentName,
+                    DocURL
+                FROM Task_Documents
+                WHERE task_id = @taskId
+                ORDER BY DocumentName ASC
+            `);
+        
+        const documents = result.recordset;
+        console.log(`Fetched ${documents.length} documents for task ${taskId}`);
+        
+        // Return the documents
+        res.json({
+            success: true,
+            documents: documents
+        });
+    } catch (error) {
+        console.error('Error fetching documents:', error);
+        res.status(500).json({ error: 'Failed to fetch documents' });
+    }
+});
+
 // API endpoint to get task instrument URL
 router.get('/task/:projectId/:taskId', requireLogin, async (req, res) => {
     try {

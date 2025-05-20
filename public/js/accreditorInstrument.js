@@ -72,14 +72,38 @@ document.addEventListener('DOMContentLoaded', function() {
         frame.addEventListener('load', loadHandler);
     }
     
+    // Function to populate document dropdown
+    function populateDocumentDropdown(documents) {
+        // Clear existing options
+        while (documentSelect.options.length > 0) {
+            documentSelect.remove(0);
+        }
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = documents.length > 0 ? 'Select a Document' : 'No documents available';
+        documentSelect.appendChild(defaultOption);
+        
+        // Add document options
+        documents.forEach(doc => {
+            const option = document.createElement('option');
+            option.value = doc.DocURL;
+            option.textContent = doc.DocumentName;
+            documentSelect.appendChild(option);
+        });
+    }
+    
     // Handle task selection
     taskSelect.addEventListener('change', function() {
         const taskId = this.value;
         const projectId = getProjectId();
         
         if (!taskId) {
-            // Reset iframes if no task is selected
+            // Reset iframes and document dropdown if no task is selected
             instrumentFrame.src = '/static/instrument-placeholder.html';
+            evidenceFrame.src = '/static/evidence-placeholder.html';
+            populateDocumentDropdown([]);
             return;
         }
         
@@ -99,24 +123,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success && data.task) {
                     // Update the instrument iframe with the URL from the task
                     if (data.task.accreditation_Instrument_URL) {
-                        // Use our new loading function that handles Google Docs properly
                         loadDocumentInIframe(instrumentFrame, data.task.accreditation_Instrument_URL);
                     } else {
                         instrumentFrame.src = '/static/instrument-placeholder.html';
                     }
                     
-                    // Keep evidence iframe with placeholder for now
+                    // Reset evidence iframe
                     evidenceFrame.src = '/static/evidence-placeholder.html';
+                    
+                    // Fetch documents for this task
+                    return fetch(`/accreditor/documents/${taskId}`);
+                }
+            })
+            .then(response => {
+                if (!response || !response.ok) {
+                    if (response) throw new Error('Failed to fetch documents');
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    console.log('Documents:', data.documents);
+                    populateDocumentDropdown(data.documents);
                 }
             })
             .catch(error => {
-                console.error('Error fetching task details:', error);
+                console.error('Error in task selection flow:', error);
                 instrumentFrame.src = '/static/instrument-placeholder.html';
+                evidenceFrame.src = '/static/evidence-placeholder.html';
+                populateDocumentDropdown([]);
             });
     });
     
+    // Handle document selection
     documentSelect.addEventListener('change', function() {
-        // This will be implemented in the next phase
-        console.log('Document selected:', this.value);
+        const docUrl = this.value;
+        console.log('Document selected:', docUrl);
+        
+        if (!docUrl) {
+            // Reset evidence iframe if no document is selected
+            evidenceFrame.src = '/static/evidence-placeholder.html';
+            return;
+        }
+        
+        // Load the selected document in the evidence iframe
+        loadDocumentInIframe(evidenceFrame, docUrl);
     });
 });

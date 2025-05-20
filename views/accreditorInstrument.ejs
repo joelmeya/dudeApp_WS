@@ -25,13 +25,7 @@
             <div class="control-group">
                 <label for="documentSelect">Document URL</label>
                 <select id="documentSelect" class="form-control">
-                    <% if (locals.documents && documents.length > 0) { %>
-                        <% documents.forEach(function(doc) { %>
-                            <option value="<%= doc.id %>" <%= locals.selectedDocument && selectedDocument === doc.id ? 'selected' : '' %>><%= doc.name %></option>
-                        <% }); %>
-                    <% } else { %>
-                        <option value="library" selected>Library Evidence</option>
-                    <% } %>
+                    <option value="" selected>Select a Document</option>
                 </select>
             </div>
         </div>
