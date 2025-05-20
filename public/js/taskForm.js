@@ -37,9 +37,6 @@ function openTaskModal(button) {
     const modal = document.getElementById('updateTaskModal');
     const modalOverlay = document.getElementById('modalOverlay');
     
-    // Initialize task modal components when opening
-    initializeTaskModal();
-    
     if (!modal) {
         console.error('Modal element not found');
         return;
@@ -118,9 +115,8 @@ function openTaskModal(button) {
         assignedUsers = [];
         taskDocuments = [];
         
-        // Initialize UI components
-        initializeUserAssignment();
-        initializeDocuments();
+        // Initialize task modal components AFTER setting the task ID
+        initializeTaskModal();
         
         // Load data for this task with slight delay between calls to prevent interference
         loadAssignedUsers(taskId);
@@ -129,6 +125,61 @@ function openTaskModal(button) {
         setTimeout(() => {
             loadTaskDocuments(taskId);
         }, 100);
+        
+        // Load feedbacks for this task
+        setTimeout(() => {
+            loadTaskFeedbacks();
+        }, 200);
+        
+        // Directly attach event listener to the document add button
+        setTimeout(() => {
+            const addDocumentBtn = document.getElementById('addDocumentBtn');
+            if (addDocumentBtn) {
+                console.log('Directly attaching click event to Add Document button');
+                
+                // Remove any existing listeners
+                const newBtn = addDocumentBtn.cloneNode(true);
+                addDocumentBtn.parentNode.replaceChild(newBtn, addDocumentBtn);
+                
+                // Add direct click handler
+                newBtn.onclick = function(event) {
+                    event.preventDefault();
+                    console.log('Add document button clicked (direct handler)');
+                    
+                    const nameInput = document.getElementById('documentName');
+                    const urlInput = document.getElementById('documentUrl');
+                    
+                    if (!nameInput || !urlInput) {
+                        alertify.error('Document form inputs not found');
+                        return;
+                    }
+                    
+                    const name = nameInput.value.trim();
+                    const url = urlInput.value.trim();
+                    
+                    if (!name) {
+                        alertify.error('Please enter a document name');
+                        return;
+                    }
+                    
+                    if (!url) {
+                        alertify.error('Please enter a document URL');
+                        return;
+                    }
+                    
+                    // Add the document
+                    addDocumentToTask(name, url);
+                    
+                    // Clear inputs
+                    nameInput.value = '';
+                    urlInput.value = '';
+                    nameInput.focus();
+                    
+                    // Show success message
+                    alertify.success('Document added successfully');
+                };
+            }
+        }, 300);
         
         console.log('Modal should be visible now');
     } catch (error) {
@@ -648,35 +699,54 @@ function initializeDocuments() {
     // Show the empty message
     toggleEmptyDocumentsMessage();
     
-    // Setup the Add Document button - direct approach without cloning
+    // Setup the Add Document button
     const addDocumentBtn = document.getElementById('addDocumentBtn');
     console.log('Add Document button found:', addDocumentBtn);
     
     if (addDocumentBtn) {
-        // First remove any existing listeners to prevent duplicates
-        addDocumentBtn.removeEventListener('click', handleAddDocument);
+        // Create a new button to replace the old one (to ensure clean event listeners)
+        const newAddDocumentBtn = addDocumentBtn.cloneNode(true);
+        addDocumentBtn.parentNode.replaceChild(newAddDocumentBtn, addDocumentBtn);
         
-        // Then add the event listener
-        addDocumentBtn.addEventListener('click', handleAddDocument);
+        // Add event listener to the new button
+        newAddDocumentBtn.addEventListener('click', function(event) {
+            console.log('Add document button clicked via event listener');
+            handleAddDocument(event);
+        });
+        
+        console.log('Added click event listener to Add Document button');
     } else {
         console.error('Add Document button not found');
     }
     
-    // Setup document removal - direct approach
+    // Setup document removal
     const documentListContainer = document.querySelector('.documents-list-container');
     if (documentListContainer) {
-        // Remove existing listeners
-        documentListContainer.removeEventListener('click', handleRemoveDocument);
+        // Create a new container to replace the old one (to ensure clean event listeners)
+        const newDocumentListContainer = documentListContainer.cloneNode(true);
+        documentListContainer.parentNode.replaceChild(newDocumentListContainer, documentListContainer);
         
-        // Add new listener
-        documentListContainer.addEventListener('click', handleRemoveDocument);
+        // Add event listener to the new container
+        newDocumentListContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-document') || 
+                event.target.closest('.remove-document')) {
+                handleRemoveDocument(event);
+            }
+        });
+        
+        console.log('Added click event listener to document list container');
     } else {
         console.error('Documents list container not found');
     }
 }
 
 // Handler for adding documents
-function handleAddDocument() {
+function handleAddDocument(event) {
+    // Prevent default form submission if this is triggered by a form
+    if (event) {
+        event.preventDefault();
+    }
+    
     console.log('Add document button clicked');
     
     // Prevent duplicate executions by debouncing
@@ -694,13 +764,25 @@ function handleAddDocument() {
         
         if (!nameInput || !urlInput) {
             console.error('Document form inputs not found');
+            alertify.error('Document form inputs not found');
             return;
         }
         
         const name = nameInput.value.trim();
         const url = urlInput.value.trim();
         
-        // No validation - allow empty or duplicate documents
+        console.log('Adding document:', { name, url });
+        
+        // Basic validation
+        if (!name) {
+            alertify.error('Please enter a document name');
+            return;
+        }
+        
+        if (!url) {
+            alertify.error('Please enter a document URL');
+            return;
+        }
         
         // Add the document
         addDocumentToTask(name, url);
@@ -712,6 +794,9 @@ function handleAddDocument() {
         
         // Show success message
         alertify.success('Document added successfully');
+    } catch (error) {
+        console.error('Error adding document:', error);
+        alertify.error('Error adding document');
     } finally {
         // Reset processing flag after a short delay
         setTimeout(() => {
@@ -722,13 +807,32 @@ function handleAddDocument() {
 
 // Handler for removing documents
 function handleRemoveDocument(e) {
+    console.log('Remove document handler triggered');
+    
+    // Find the remove button that was clicked
     const removeBtn = e.target.closest('.remove-document');
-    if (removeBtn) {
-        const docId = removeBtn.getAttribute('data-doc-id');
-        if (docId) {
-            removeDocumentFromTask(docId);
-            alertify.success('Document removed');
-        }
+    if (!removeBtn) {
+        console.log('No remove button found in event target');
+        return;
+    }
+    
+    // Get the document ID
+    const docId = removeBtn.getAttribute('data-doc-id');
+    if (!docId) {
+        console.error('No document ID found on remove button');
+        alertify.error('Error removing document: No document ID found');
+        return;
+    }
+    
+    console.log('Removing document with ID:', docId);
+    
+    try {
+        // Remove the document
+        removeDocumentFromTask(docId);
+        alertify.success('Document removed successfully');
+    } catch (error) {
+        console.error('Error removing document:', error);
+        alertify.error('Error removing document');
     }
 }
 
@@ -850,42 +954,71 @@ function loadTaskDocuments(taskId) {
         });
 }
 
-// Initialize user assignment and documents when the task modal is opened
+// Initialize user assignment, documents, and feedbacks when the task modal is opened
 function initializeTaskModal() {
     console.log('Initializing task modal components');
     
-    // Clear any existing event handlers first
-    removeAllEventHandlers();
-    
-    // Initialize document buttons first (from the old implementation)
-    initializeDocumentButtons();
-    
-    // Then initialize user assignment
+    // Initialize user assignment
     initializeUserAssignment();
     
+    // Initialize documents
+    initializeDocuments();
+    
     // Initialize feedback functionality
-    if (typeof initializeFeedbackForm === 'function') {
-        console.log('Initializing feedback functionality');
-        initializeFeedbackForm();
-    } else {
-        console.warn('Feedback form initialization function not found');
-        // Fallback implementation for feedback functionality
-        initializeFeedbackFallback();
+    initializeFeedbackFallback();
+    
+    // Clear any existing event handlers to prevent duplicates
+    removeAllEventHandlers();
+    
+    // Clear the feedback table body to prepare for new data
+    const feedbackTableBody = document.getElementById('feedbackTableBody');
+    if (feedbackTableBody) {
+        feedbackTableBody.innerHTML = '';
     }
     
-    // Finally initialize documents functionality
-    initializeDocuments();
+    // Show loading state for feedbacks
+    const feedbackTable = document.getElementById('feedbackTable');
+    const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+    
+    if (feedbackTable) feedbackTable.style.display = 'none';
+    if (noFeedbacksMessage) {
+        noFeedbacksMessage.style.display = 'flex';
+        const messageElement = noFeedbacksMessage.querySelector('.empty-state-message');
+        if (messageElement) {
+            messageElement.textContent = 'Loading feedbacks...';
+        }
+    }
+    
+    console.log('Task modal components initialized');
 }
 
-// Fallback implementation for feedback functionality
+// Implementation for feedback functionality with database integration
 function initializeFeedbackFallback() {
-    console.log('Using fallback feedback initialization');
+    console.log('Initializing feedback functionality with database integration');
     
     // Add event listener to the Add Feedback button
     const showFeedbackFormBtn = document.getElementById('showFeedbackForm');
     if (showFeedbackFormBtn) {
         showFeedbackFormBtn.addEventListener('click', function() {
             console.log('Add Feedback button clicked');
+            const feedbackFormContainer = document.getElementById('feedbackFormContainer');
+            if (feedbackFormContainer) {
+                feedbackFormContainer.style.display = 'block';
+                
+                // Clear any previous input
+                const feedbackText = document.getElementById('feedbackText');
+                if (feedbackText) {
+                    feedbackText.value = '';
+                    feedbackText.focus();
+                }
+            }
+        });
+    }
+    
+    // Add event listener to the Add First Feedback button (empty state)
+    const addFirstFeedbackBtn = document.getElementById('addFirstFeedback');
+    if (addFirstFeedbackBtn) {
+        addFirstFeedbackBtn.addEventListener('click', function() {
             const feedbackFormContainer = document.getElementById('feedbackFormContainer');
             if (feedbackFormContainer) {
                 feedbackFormContainer.style.display = 'block';
@@ -915,39 +1048,86 @@ function initializeFeedbackFallback() {
     // Add event listener to the Submit button
     const submitFeedbackBtn = document.getElementById('submitFeedback');
     if (submitFeedbackBtn) {
-        submitFeedbackBtn.addEventListener('click', function() {
+        // Remove any existing event listeners to prevent duplicates
+        const newSubmitBtn = submitFeedbackBtn.cloneNode(true);
+        submitFeedbackBtn.parentNode.replaceChild(newSubmitBtn, submitFeedbackBtn);
+        
+        // Flag to prevent multiple submissions
+        let isSubmitting = false;
+        
+        newSubmitBtn.addEventListener('click', function() {
             console.log('Submit Feedback button clicked');
+            
+            // Prevent multiple submissions
+            if (isSubmitting) {
+                console.log('Submission already in progress, ignoring duplicate click');
+                return;
+            }
+            
+            isSubmitting = true;
+            
             // Get the feedback text
             const feedbackText = document.getElementById('feedbackText');
             
             if (!feedbackText || !feedbackText.value.trim()) {
                 alertify.error('Please enter your feedback');
+                isSubmitting = false;
                 return;
             }
             
-            // Get the feedback data
+            // Get the task ID
+            const taskId = document.getElementById('taskId').value;
+            if (!taskId) {
+                alertify.error('Task ID not found');
+                isSubmitting = false;
+                return;
+            }
+            
+            // Get the project ID from the form action URL
+            const formAction = document.getElementById('taskUpdateForm').getAttribute('action');
+            const projectId = formAction.split('/')[2]; // Assuming format: /project-details/:projectId/update-task
+            
+            // Get the feedback content
             const feedbackContent = feedbackText.value.trim();
-            const currentDate = new Date().toLocaleDateString();
-            const userName = 'Current User'; // This would normally come from the session
             
-            // Add the feedback to the table
-            const feedbackId = new Date().getTime(); // Generate a unique ID
-            const feedbackTableBody = document.getElementById('feedbackTableBody');
-            
-            if (feedbackTableBody) {
-                // Create a new row
+            // Send the feedback to the server
+            fetch(`/project-details/${projectId}/tasks/${taskId}/feedbacks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ feedback: feedbackContent })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to submit feedback');
+                }
+                return response.json();
+            })
+            .then(newFeedback => {
+                console.log('Feedback submitted successfully:', newFeedback);
+                
+                // Format the date
+                const createdDate = new Date(newFeedback.Created_At);
+                const formattedDate = createdDate.toLocaleDateString();
+                
+                // Create a new row for the feedback
                 const row = document.createElement('tr');
+                row.setAttribute('data-feedback-id', newFeedback.task_id);
                 row.innerHTML = `
-                    <td>${userName}</td>
-                    <td>${currentDate}</td>
-                    <td class="feedback-preview">${feedbackContent}</td>
+                    <td>${newFeedback.user_name || 'Unknown User'}</td>
+                    <td>${formattedDate}</td>
+                    <td class="feedback-preview">${newFeedback.Feedback}</td>
                     <td>
-                        <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="${feedbackId}">View</button>
+                        <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="${newFeedback.task_id}">View</button>
                     </td>
                 `;
                 
                 // Add the row to the table (at the top)
-                feedbackTableBody.insertBefore(row, feedbackTableBody.firstChild);
+                const feedbackTableBody = document.getElementById('feedbackTableBody');
+                if (feedbackTableBody) {
+                    feedbackTableBody.insertBefore(row, feedbackTableBody.firstChild);
+                }
                 
                 // Show the table and hide the empty message
                 const feedbackTable = document.getElementById('feedbackTable');
@@ -962,6 +1142,9 @@ function initializeFeedbackFallback() {
                     feedbackFormContainer.style.display = 'none';
                 }
                 
+                // Reset the form
+                feedbackText.value = '';
+                
                 // Show success message
                 alertify.success('Feedback submitted successfully');
                 
@@ -969,27 +1152,116 @@ function initializeFeedbackFallback() {
                 const viewBtn = row.querySelector('.view-feedback');
                 if (viewBtn) {
                     viewBtn.addEventListener('click', function() {
-                        viewFeedbackFallback(feedbackId);
+                        viewFeedbackFallback(newFeedback.task_id, newFeedback);
                     });
                 }
-            }
+                
+                // Reset submission flag
+                isSubmitting = false;
+            })
+            .catch(error => {
+                console.error('Error submitting feedback:', error);
+                alertify.error('Failed to submit feedback. Please try again.');
+                isSubmitting = false;
+            });
         });
     }
     
-    // Add event listeners to all View buttons
-    const viewFeedbackBtns = document.querySelectorAll('.view-feedback');
-    viewFeedbackBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const feedbackId = this.getAttribute('data-feedback-id');
-            viewFeedbackFallback(feedbackId);
-        });
-    });
-    
-    // Check if there are any feedbacks and show/hide elements accordingly
-    checkFeedbacksExistence();
-    
     // Create feedback modal if it doesn't exist
     createFeedbackModalFallback();
+}
+
+// Function to load feedbacks for a task from the database
+function loadTaskFeedbacks() {
+    const taskId = document.getElementById('taskId').value;
+    if (!taskId) {
+        console.error('Task ID not found');
+        return;
+    }
+    
+    // Get the project ID from the form action URL
+    const formAction = document.getElementById('taskUpdateForm').getAttribute('action');
+    const projectId = formAction.split('/')[2]; // Assuming format: /project-details/:projectId/update-task
+    
+    console.log(`Loading feedbacks for task ${taskId} in project ${projectId}`);
+    
+    // Clear existing feedbacks
+    const feedbackTableBody = document.getElementById('feedbackTableBody');
+    if (feedbackTableBody) {
+        feedbackTableBody.innerHTML = '';
+    }
+    
+    // Fetch feedbacks from the server
+    fetch(`/project-details/${projectId}/tasks/${taskId}/feedbacks`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load feedbacks');
+            }
+            return response.json();
+        })
+        .then(feedbacks => {
+            console.log(`Loaded ${feedbacks.length} feedbacks for task ${taskId}`);
+            
+            if (feedbacks.length === 0) {
+                // Show the empty state message
+                const feedbackTable = document.getElementById('feedbackTable');
+                const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+                
+                if (feedbackTable) feedbackTable.style.display = 'none';
+                if (noFeedbacksMessage) noFeedbacksMessage.style.display = 'flex';
+                return;
+            }
+            
+            // Add each feedback to the table
+            feedbacks.forEach(feedback => {
+                // Format the date
+                const createdDate = new Date(feedback.Created_At);
+                const formattedDate = createdDate.toLocaleDateString();
+                
+                // Create a row for the feedback
+                const row = document.createElement('tr');
+                row.setAttribute('data-feedback-id', feedback.task_id);
+                row.innerHTML = `
+                    <td>${feedback.user_name || 'Unknown User'}</td>
+                    <td>${formattedDate}</td>
+                    <td class="feedback-preview">${feedback.Feedback}</td>
+                    <td>
+                        <button type="button" class="btn-sm btn-secondary view-feedback" data-feedback-id="${feedback.task_id}">View</button>
+                    </td>
+                `;
+                
+                // Add the row to the table
+                if (feedbackTableBody) {
+                    feedbackTableBody.appendChild(row);
+                }
+                
+                // Add event listener to the view button
+                const viewBtn = row.querySelector('.view-feedback');
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', function() {
+                        viewFeedbackFallback(feedback.task_id, feedback);
+                    });
+                }
+            });
+            
+            // Show the table and hide the empty message
+            const feedbackTable = document.getElementById('feedbackTable');
+            const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+            
+            if (feedbackTable) feedbackTable.style.display = 'table';
+            if (noFeedbacksMessage) noFeedbacksMessage.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error loading feedbacks:', error);
+            alertify.error('Failed to load feedbacks');
+            
+            // Show the empty state message as a fallback
+            const feedbackTable = document.getElementById('feedbackTable');
+            const noFeedbacksMessage = document.getElementById('noFeedbacksMessage');
+            
+            if (feedbackTable) feedbackTable.style.display = 'none';
+            if (noFeedbacksMessage) noFeedbacksMessage.style.display = 'flex';
+        });
 }
 
 // Function to check if there are any feedbacks and show/hide elements accordingly
@@ -1008,32 +1280,43 @@ function checkFeedbacksExistence() {
     noFeedbacksMessage.style.display = hasRows ? 'none' : 'flex';
 }
 
-// Function to view feedback (fallback implementation)
-function viewFeedbackFallback(feedbackId) {
+// Function to view feedback from database or DOM
+function viewFeedbackFallback(feedbackId, feedbackData = null) {
     console.log('Viewing feedback with ID:', feedbackId);
     
     try {
-        // Get the feedback data from the table row
-        const feedbackButton = document.querySelector(`.view-feedback[data-feedback-id="${feedbackId}"]`);
-        if (!feedbackButton) {
-            console.error('Feedback button not found for ID:', feedbackId);
-            alertify.error('Feedback not found');
-            return;
+        let from, date, text;
+        
+        // If feedback data is provided directly (from API response), use it
+        if (feedbackData) {
+            from = feedbackData.user_name || 'Unknown User';
+            date = new Date(feedbackData.Created_At).toLocaleDateString();
+            text = feedbackData.Feedback;
+            
+            console.log('Using provided feedback data:', { from, date, text });
+        } else {
+            // Otherwise, get the feedback data from the table row
+            const feedbackButton = document.querySelector(`.view-feedback[data-feedback-id="${feedbackId}"]`);
+            if (!feedbackButton) {
+                console.error('Feedback button not found for ID:', feedbackId);
+                alertify.error('Feedback not found');
+                return;
+            }
+            
+            const feedbackRow = feedbackButton.closest('tr');
+            if (!feedbackRow) {
+                console.error('Feedback row not found for button:', feedbackButton);
+                alertify.error('Feedback not found');
+                return;
+            }
+            
+            // Get the feedback data from the row
+            from = feedbackRow.cells[0].textContent;
+            date = feedbackRow.cells[1].textContent;
+            text = feedbackRow.cells[2].textContent;
+            
+            console.log('Feedback data from DOM:', { from, date, text });
         }
-        
-        const feedbackRow = feedbackButton.closest('tr');
-        if (!feedbackRow) {
-            console.error('Feedback row not found for button:', feedbackButton);
-            alertify.error('Feedback not found');
-            return;
-        }
-        
-        // Get the feedback data
-        const from = feedbackRow.cells[0].textContent;
-        const date = feedbackRow.cells[1].textContent;
-        const text = feedbackRow.cells[2].textContent;
-        
-        console.log('Feedback data:', { from, date, text });
         
         // Ensure the modal exists
         if (!document.getElementById('feedbackViewModal')) {

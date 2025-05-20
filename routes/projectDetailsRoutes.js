@@ -479,4 +479,176 @@ router.get('/:projectId/tasks/:taskId/documents', requireLogin, async (req, res)
     }
 });
 
+// API endpoint to get feedbacks for a task
+router.get('/:projectId/tasks/:taskId/feedbacks', requireLogin, async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        console.log(`Fetching feedbacks for task ID: ${taskId}`);
+        
+        // Import SQL module
+        const { sql } = await import('../db/sql.js');
+        
+        // Check if Task_Feedbacks table exists, create it if it doesn't
+        try {
+            // First check if the table exists
+            const tableCheck = await sql.query`
+                SELECT OBJECT_ID('Task_Feedbacks') AS TableID
+            `;
+            
+            // If table doesn't exist, create it
+            if (!tableCheck.recordset[0].TableID) {
+                console.log('Task_Feedbacks table does not exist. Creating it...');
+                
+                await sql.query`
+                    CREATE TABLE Task_Feedbacks (
+                        id INT IDENTITY(1,1) PRIMARY KEY,
+                        task_id INT NOT NULL,
+                        Feedback NVARCHAR(MAX) NOT NULL,
+                        Created_At DATETIME DEFAULT GETDATE(),
+                        Created_By INT,
+                        FOREIGN KEY (task_id) REFERENCES Tasks(Task_id),
+                        FOREIGN KEY (Created_By) REFERENCES tbl_users(id)
+                    )
+                `;
+                
+                console.log('Task_Feedbacks table created successfully');
+            } else {
+                console.log('Task_Feedbacks table already exists');
+            }
+        } catch (tableError) {
+            console.error('Error checking/creating Task_Feedbacks table:', tableError);
+            // Continue with the request even if table check/creation fails
+        }
+        
+        // Check if there are any sample data in the table (for testing)
+        const checkData = await sql.query`
+            SELECT COUNT(*) as count FROM Task_Feedbacks WHERE task_id = ${taskId}
+        `;
+        
+        // If no data exists for this task, add sample data
+        if (checkData.recordset[0].count === 0) {
+            console.log(`No feedbacks found for task ${taskId}. Returning empty array.`);
+            return res.json([]);
+        }
+        
+        // Fetch feedbacks - Created_By is already the full name
+        const result = await sql.query`
+            SELECT 
+                task_id,
+                Feedback,
+                Created_At,
+                Created_By as user_name
+            FROM Task_Feedbacks
+            WHERE task_id = ${taskId}
+            ORDER BY Created_At DESC
+        `;
+        
+        // No need to fetch user names separately as Created_By already contains the full name
+        
+        console.log(`Found ${result.recordset.length} feedbacks for task ${taskId}`);
+        res.json(result.recordset || []);
+    } catch (err) {
+        console.error('Error fetching feedbacks for task:', err);
+        res.status(500).json({ error: 'Failed to fetch task feedbacks' });
+    }
+});
+
+// API endpoint to add a new feedback for a task
+router.post('/:projectId/tasks/:taskId/feedbacks', requireLogin, async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.taskId);
+        const { feedback } = req.body;
+        // Check if user is logged in
+        if (!req.session.user) {
+            console.error('User not found in session');
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+        
+        console.log(`Adding feedback for task ID: ${taskId}, User: ${req.session.user.name || req.session.user.fullName || 'Unknown'}`);
+        
+        if (!feedback || feedback.trim() === '') {
+            return res.status(400).json({ error: 'Feedback cannot be empty' });
+        }
+        
+        // Insert feedback into the database
+        const { sql } = await import('../db/sql.js');
+        
+        // Check if Task_Feedbacks table exists, create it if it doesn't
+        try {
+            // First check if the table exists
+            const tableCheck = await sql.query`
+                SELECT OBJECT_ID('Task_Feedbacks') AS TableID
+            `;
+            
+            // If table doesn't exist, create it
+            if (!tableCheck.recordset[0].TableID) {
+                console.log('Task_Feedbacks table does not exist. Creating it...');
+                
+                await sql.query`
+                    CREATE TABLE Task_Feedbacks (
+                        id INT IDENTITY(1,1) PRIMARY KEY,
+                        task_id INT NOT NULL,
+                        Feedback NVARCHAR(MAX) NOT NULL,
+                        Created_At DATETIME DEFAULT GETDATE(),
+                        Created_By INT,
+                        FOREIGN KEY (task_id) REFERENCES Tasks(Task_id),
+                        FOREIGN KEY (Created_By) REFERENCES tbl_users(id)
+                    )
+                `;
+                
+                console.log('Task_Feedbacks table created successfully');
+            }
+        } catch (tableError) {
+            console.error('Error checking/creating Task_Feedbacks table:', tableError);
+            // Continue with the request even if table check/creation fails
+        }
+        
+        // Check if the task exists
+        const taskCheck = await sql.query`
+            SELECT Task_id FROM Tasks WHERE Task_id = ${taskId}
+        `;
+        
+        if (taskCheck.recordset.length === 0) {
+            console.error(`Task with ID ${taskId} not found`);
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Get the user's name from the session
+        const userName = req.session.user ? req.session.user.name || req.session.user.fullName || 'Unknown User' : 'Unknown User';
+        console.log(`Using user name: ${userName} for feedback`);
+        
+        // Now insert the feedback with the user's name instead of ID
+        await sql.query`
+            INSERT INTO Task_Feedbacks (task_id, Feedback, Created_By)
+            VALUES (${taskId}, ${feedback}, ${userName})
+        `;
+        
+        // Get the newly inserted feedback - Created_By is already the full name
+        const result = await sql.query`
+            SELECT TOP 1
+                task_id,
+                Feedback,
+                Created_At,
+                Created_By as user_name
+            FROM Task_Feedbacks
+            WHERE task_id = ${taskId} AND Created_By = ${userName}
+            ORDER BY Created_At DESC
+        `;
+        
+        // Get the newly added feedback
+        const newFeedback = result.recordset[0];
+        
+        if (newFeedback) {
+            console.log('Feedback added successfully:', newFeedback);
+            res.status(201).json(newFeedback);
+        } else {
+            console.error('Failed to retrieve newly added feedback');
+            res.status(500).json({ error: 'Failed to retrieve newly added feedback' });
+        }
+    } catch (err) {
+        console.error('Error adding feedback for task:', err);
+        res.status(500).json({ error: 'Failed to add task feedback' });
+    }
+});
+
 export default router;
