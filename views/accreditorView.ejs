@@ -29,7 +29,7 @@
                             <td><%= project.Details || 'No details available' %></td>
                             <td><span class="status-badge <%= (project.Status || 'pending').toLowerCase().replace(' ', '-') %>"><%= project.Status || 'Pending' %></span></td>
                             <td>
-                                <a href="/project-details/<%= project.ProjectID %>" class="btn-icon" title="View Details" style="font-size: 1.2rem; padding: 8px 12px; display: inline-block; text-decoration: none;">
+                                <a href="/accreditor/instrument/<%= project.ProjectID %>" class="btn-icon" title="Accreditation Instrument" style="font-size: 1.2rem; padding: 8px 12px; display: inline-block; text-decoration: none;">
                                     <i class="fas fa-clipboard-check"></i>
                                 </a>
                             </td>

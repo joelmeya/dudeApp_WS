@@ -1,0 +1,66 @@
+<%- contentFor('body') %>
+
+<div class="instrument-page-container">
+    <!-- Top controls bar -->
+    <div class="top-controls-bar">
+        <div class="left-controls">
+            <div class="project-title" data-full-title="<%= locals.projectName || 'Pacucoa_OCT2024' %>"><%= locals.projectName || 'Pacucoa_OCT2024' %></div>
+        </div>
+        
+        <div class="center-controls">
+            <div class="control-group">
+                <label for="taskSelect">Task</label>
+                <select id="taskSelect" class="form-control">
+                    <% if (locals.tasks && tasks.length > 0) { %>
+                        <% tasks.forEach(function(task) { %>
+                            <option value="<%= task.id %>" <%= locals.selectedTask && selectedTask === task.id ? 'selected' : '' %>><%= task.name %></option>
+                        <% }); %>
+                    <% } else { %>
+                        <option value="area3" selected>AREA 3</option>
+                    <% } %>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="documentSelect">Document URL</label>
+                <select id="documentSelect" class="form-control">
+                    <% if (locals.documents && documents.length > 0) { %>
+                        <% documents.forEach(function(doc) { %>
+                            <option value="<%= doc.id %>" <%= locals.selectedDocument && selectedDocument === doc.id ? 'selected' : '' %>><%= doc.name %></option>
+                        <% }); %>
+                    <% } else { %>
+                        <option value="library" selected>Library Evidence</option>
+                    <% } %>
+                </select>
+            </div>
+        </div>
+        
+        <div class="right-controls">
+            <a href="/accreditor" class="btn-back">
+                <i class="fas fa-arrow-left"></i> GO BACK
+            </a>
+        </div>
+    </div>
+    
+    <!-- Frames container -->
+    <div class="frames-container">
+        <div class="frame-section">
+            <div class="frame-header">
+                <h2>Evidence</h2>
+            </div>
+            <div class="frame-content">
+                <iframe id="evidenceFrame" src="<%= locals.evidenceUrl || '/static/evidence-placeholder.html' %>" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+        <div class="frame-section">
+            <div class="frame-header">
+                <h2>Instrument</h2>
+            </div>
+            <div class="frame-content">
+                <iframe id="instrumentFrame" src="<%= locals.instrumentUrl || '/static/instrument-placeholder.html' %>" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+

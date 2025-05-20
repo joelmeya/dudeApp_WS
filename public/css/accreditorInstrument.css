@@ -1,0 +1,224 @@
+/* Accreditor Instrument Page Styles - v1.1 */
+.instrument-page-container {
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Top controls bar */
+.top-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    height: 40px;
+    position: relative;
+    z-index: 100;
+}
+
+.left-controls {
+    flex: 0 0 200px;
+    margin-right: 10px;
+    overflow: hidden;
+}
+
+.project-title {
+    font-size: 1rem;
+    color: #2c3e50;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    cursor: default;
+    position: relative;
+}
+
+/* Remove the CSS tooltip */
+.project-title:hover::after {
+    display: none;
+}
+
+.center-controls {
+    display: flex;
+    gap: 15px;
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+.right-controls {
+    flex: 0 1 auto;
+    display: flex;
+    justify-content: flex-end;
+    white-space: nowrap;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.control-group label {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    white-space: nowrap;
+}
+
+.form-control {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    background-color: white;
+    position: relative;
+    z-index: 101;
+    width: 240px;
+}
+
+/* Ensure dropdown options appear above iframes */
+select.form-control option {
+    background-color: white;
+    color: #333;
+    padding: 6px;
+}
+
+/* Fix for dropdown options being cut off */
+.dropdown-active .frames-container {
+    z-index: 0;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background-color 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #e9ecef;
+}
+
+.btn-back i {
+    margin-right: 5px;
+}
+
+/* Frames container */
+.frames-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.frame-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #eee;
+}
+
+.frame-section:last-child {
+    border-right: none;
+}
+
+.frame-header {
+    padding: 3px 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.frame-header h2 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.frame-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+@media (max-width: 1200px) {
+    .left-controls {
+        flex: 0 0 150px;
+    }
+    
+    .project-title {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 992px) {
+    .frames-container {
+        flex-direction: column;
+    }
+    
+    .top-controls-bar {
+        height: auto;
+        padding: 8px 15px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .left-controls {
+        flex: 0 0 auto;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    
+    .project-title {
+        max-width: 100%;
+    }
+    
+    /* Adjust tooltip position for mobile */
+    .project-title:hover::after {
+        top: 100%;
+        left: 0;
+        right: auto;
+    }
+    
+    .center-controls {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .control-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-control {
+        width: 100%;
+    }
+    
+    .right-controls {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 5px;
+    }
+}
