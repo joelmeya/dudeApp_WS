@@ -42,18 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     // Redirect to dashboard or specified URL
-                    // Store login state in localStorage as a backup
+                    // Store login state in localStorage for client-side auth
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userEmail', email);
                     localStorage.setItem('userName', data.user?.name || '');
                     localStorage.setItem('userRole', data.user?.role || '');
+                    localStorage.setItem('loginTimestamp', Date.now().toString());
                     
                     console.log('Login successful, redirecting to:', data.redirectUrl || '/dashboard');
                     
+                    // Add a special parameter to the URL to prevent redirect loops
+                    const redirectUrl = (data.redirectUrl || '/dashboard') + '?auth=' + Date.now();
+                    
                     // Use a more direct approach to redirect
                     setTimeout(() => {
-                        window.location.replace(data.redirectUrl || '/dashboard');
-                    }, 1000);
+                        window.location.replace(redirectUrl);
+                    }, 500);
                 } else {
                     // Hide loading state on error
                     setLoading(false);

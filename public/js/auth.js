@@ -4,8 +4,6 @@
 function checkAuth() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const userEmail = localStorage.getItem('userEmail');
-    const userName = localStorage.getItem('userName');
-    const userRole = localStorage.getItem('userRole');
     
     // If not on login page and not authenticated, redirect to login
     if (!isLoggedIn || !userEmail) {
@@ -56,49 +54,20 @@ function setupAuthHeaders() {
             // Call original fetch with new options
             return originalFetch(url, newOptions);
         };
-        
-        console.log('Added client authentication headers to all requests');
     }
 }
 
+// Run auth check immediately
+checkAuth();
+
+// Setup auth headers
+setupAuthHeaders();
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Check authentication first
-    if (checkAuth()) {
-        // Setup auth headers for all requests
-        setupAuthHeaders();
-        
-        // Update UI with user info if available
-        const userEmailElement = document.getElementById('userEmail');
-        if (userEmailElement) {
-            userEmailElement.textContent = localStorage.getItem('userEmail') || '';
-        }
-    }
-    
-    // Handle logout button
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                // Clear localStorage
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userRole');
-                
-                // Call logout API
-                await fetch('/api/login/logout', {
-                    method: 'POST',
-                    credentials: 'same-origin'
-                });
-                
-                // Redirect to login page
-                window.location.href = '/';
-            } catch (error) {
-                console.error('Logout error:', error);
-                // Redirect anyway
-                window.location.href = '/';
-            }
-        });
+    // Update UI with user info if available
+    const userEmailElement = document.getElementById('userEmail');
+    if (userEmailElement) {
+        userEmailElement.textContent = localStorage.getItem('userEmail') || '';
     }
 });

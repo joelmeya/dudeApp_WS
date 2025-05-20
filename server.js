@@ -24,20 +24,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Secure Session Middleware
+// Configure session middleware with Vercel-friendly settings
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is saved even if not modified
-  rolling: true,
+  saveUninitialized: true,
+  rolling: true, // Reset expiration on every response
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax', // Changed to always use lax to avoid cross-domain issues
-    maxAge: 7 * 24 * 60 * 60 * 1000, // Extended to 7 days for better persistence
-    path: '/' // Explicitly set path to root
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    path: '/' // Ensure cookie is available on all paths
   },
-  name: 'sessionId', // Custom cookie name
   proxy: true // Trust the reverse proxy
 }));
 
@@ -53,6 +52,26 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
+
+// Add CORS headers for Vercel
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-client-auth, x-user-email, x-user-name, x-user-role');
+  
+  // Log session info for debugging
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Session ID:', req.sessionID);
+    console.log('Session User:', req.session?.user || 'No user');
+    console.log('Auth Headers:', {
+      clientAuth: req.headers['x-client-auth'],
+      userEmail: req.headers['x-user-email']
+    });
+  }
+  
+  next();
+});
+
 app.use(express.json()); // Add JSON body parser for handling JSON requests
 
 // Add request logging middleware
