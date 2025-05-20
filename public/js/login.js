@@ -42,8 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     // Redirect to dashboard or specified URL
+                    // Store login state in localStorage as a backup
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userName', data.user?.name || '');
+                    localStorage.setItem('userRole', data.user?.role || '');
+                    
+                    console.log('Login successful, redirecting to:', data.redirectUrl || '/dashboard');
+                    
+                    // Use a more direct approach to redirect
                     setTimeout(() => {
-                        window.location.href = data.redirectUrl || '/dashboard';
+                        window.location.replace(data.redirectUrl || '/dashboard');
                     }, 1000);
                 } else {
                     // Hide loading state on error
