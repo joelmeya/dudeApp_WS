@@ -74,6 +74,71 @@ router.get('/', requireLogin, async (req, res) => {
     }
 });
 
+// Route to view project tasks on a dedicated page
+router.get('/project-tasks/:projectId', requireLogin, async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        
+        // Connect to database
+        const pool = await sql.connect();
+        
+        // Fetch project details
+        const projectResult = await pool.request()
+            .input('projectId', sql.Int, projectId)
+            .query(`
+                SELECT 
+                    ProjectID,
+                    Project_Name,
+                    Project_Type,
+                    Details,
+                    Date,
+                    Status
+                FROM Projects
+                WHERE ProjectID = @projectId
+            `);
+        
+        if (projectResult.recordset.length === 0) {
+            return res.status(404).render('error', {
+                message: 'Project not found',
+                error: { status: 404 }
+            });
+        }
+        
+        const project = projectResult.recordset[0];
+        
+        // Fetch tasks for the specified project
+        const tasksResult = await pool.request()
+            .input('projectId', sql.Int, projectId)
+            .query(`
+                SELECT 
+                    TaskID,
+                    Task_Name,
+                    Description,
+                    Status,
+                    Completion_percentage,
+                    Created_At,
+                    Updated_At
+                FROM Tasks
+                WHERE ProjectID = @projectId
+                ORDER BY Created_At DESC
+            `);
+        
+        // Render the project tasks page
+        res.render('projectTasks', {
+            title: `${project.Project_Name} - Tasks`,
+            project: project,
+            tasks: tasksResult.recordset,
+            activePage: 'reports'
+        });
+    } catch (error) {
+        console.error('Error fetching project tasks:', error);
+        res.status(500).render('error', {
+            message: 'Error fetching project tasks',
+            error: { status: 500, stack: error.stack }
+        });
+    }
+});
+
 // Route to export reports data to CSV
 router.get('/export-csv', requireLogin, async (req, res) => {
     try {

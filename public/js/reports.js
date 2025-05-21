@@ -43,6 +43,105 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Function to open the tasks modal
+function openTasksModal(projectId, projectName) {
+    // Set the modal title with the project name
+    document.getElementById('projectTasksTitle').textContent = `${projectName} - Tasks`;
+    
+    // Set the link to view full project details
+    const detailsLink = document.getElementById('viewProjectDetailsLink');
+    detailsLink.href = `/project-details/${projectId}`;
+    
+    // Show the modal and overlay
+    document.getElementById('projectTasksModal').style.display = 'block';
+    document.getElementById('modalOverlay').style.display = 'block';
+    
+    // Fetch tasks for this project
+    fetchProjectTasks(projectId);
+}
+
+// Function to close the tasks modal
+function closeTasksModal() {
+    document.getElementById('projectTasksModal').style.display = 'none';
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+
+// Function to fetch project tasks from the server
+function fetchProjectTasks(projectId) {
+    // Show loading state
+    document.getElementById('taskTableBody').innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center">
+                <div class="loading-spinner"></div>
+                <p>Loading tasks...</p>
+            </td>
+        </tr>
+    `;
+    
+    // Fetch tasks data from the server
+    fetch(`/reports/project-tasks/${projectId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            renderTasksTable(data.tasks);
+        })
+        .catch(error => {
+            console.error('Error fetching tasks:', error);
+            document.getElementById('taskTableBody').innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading tasks. Please try again.</p>
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// Function to render the tasks table with the fetched data
+function renderTasksTable(tasks) {
+    const taskTableBody = document.getElementById('taskTableBody');
+    
+    if (!tasks || tasks.length === 0) {
+        taskTableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center">No tasks found for this project</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Generate the HTML for each task row
+    const tasksHtml = tasks.map(task => {
+        // Determine status class
+        let statusClass = 'new';
+        if (task.Status) {
+            const status = task.Status.toLowerCase();
+            if (status === 'completed') statusClass = 'complete';
+            else if (status === 'ongoing') statusClass = 'ongoing';
+            else if (status === 'for review') statusClass = 'review';
+            else if (status === 'cancelled') statusClass = 'cancelled';
+        }
+        
+        return `
+            <tr data-task-id="${task.TaskID}">
+                <td>${task.Task_Name}</td>
+                <td>${task.Description || ''}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">${task.Status || 'New'}</span>
+                </td>
+                <td>${task.Completion_percentage || 0}%</td>
+            </tr>
+        `;
+    }).join('');
+    
+    taskTableBody.innerHTML = tasksHtml;
+}
+
 // Function to sort table
 function sortTable(table, columnIndex, ascending) {
     const tbody = table.querySelector('tbody');

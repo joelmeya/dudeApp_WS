@@ -1,0 +1,127 @@
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0"><%= project.Project_Name %> - Tasks</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/reports">Reports</a></li>
+                        <li class="breadcrumb-item active">Project Tasks</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Project Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Project Name:</strong> <%= project.Project_Name %></p>
+                                    <p><strong>Project Type:</strong> <%= project.Project_Type %></p>
+                                    <p><strong>Date:</strong> <%= new Date(project.Date).toLocaleDateString() %></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge <%= project.Status === 'Completed' ? 'badge-success' : (project.Status === 'In Progress' ? 'badge-primary' : 'badge-warning') %>">
+                                            <%= project.Status %>
+                                        </span>
+                                    </p>
+                                    <p><strong>Details:</strong> <%= project.Details %></p>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <a href="/project-details/<%= project.ProjectID %>" class="btn btn-primary">
+                                        <i class="fas fa-file-alt"></i> View Full Project Details
+                                    </a>
+                                    <a href="/reports" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Back to Reports
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Tasks</h3>
+                        </div>
+                        <div class="card-body">
+                            <% if (tasks && tasks.length > 0) { %>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Status</th>
+                                                <th>Completion %</th>
+                                                <th>Created</th>
+                                                <th>Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% tasks.forEach(task => { %>
+                                                <tr>
+                                                    <td><%= task.Task_Name %></td>
+                                                    <td><%= task.Description %></td>
+                                                    <td>
+                                                        <% let statusClass = 'badge-secondary'; %>
+                                                        <% if (task.Status === 'Completed') { %>
+                                                            <% statusClass = 'badge-success'; %>
+                                                        <% } else if (task.Status === 'In Progress') { %>
+                                                            <% statusClass = 'badge-primary'; %>
+                                                        <% } else if (task.Status === 'Not Started') { %>
+                                                            <% statusClass = 'badge-warning'; %>
+                                                        <% } else if (task.Status === 'Blocked') { %>
+                                                            <% statusClass = 'badge-danger'; %>
+                                                        <% } %>
+                                                        <span class="badge <%= statusClass %>"><%= task.Status %></span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar" style="width: <%= task.Completion_percentage %>%" 
+                                                                aria-valuenow="<%= task.Completion_percentage %>" aria-valuemin="0" aria-valuemax="100">
+                                                                <%= task.Completion_percentage %>%
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><%= new Date(task.Created_At).toLocaleString() %></td>
+                                                    <td><%= new Date(task.Updated_At).toLocaleString() %></td>
+                                                </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <% } else { %>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> No tasks found for this project.
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

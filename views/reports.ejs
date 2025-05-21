@@ -2,6 +2,88 @@
 <link rel="stylesheet" href="/css/reports.css">
 <script src="/js/reports.js" defer></script>
 
+<script>
+// Function to load project tasks
+function loadProjectTasks(projectId) {
+    console.log('Loading tasks for project ID:', projectId);
+    
+    // Show loading state
+    document.getElementById('taskTableBody').innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center">
+                <div class="loading-spinner"></div>
+                <p>Loading tasks...</p>
+            </td>
+        </tr>
+    `;
+    
+    // Fetch tasks data from the server
+    const url = `/reports/project-tasks/${projectId}`;
+    console.log('Fetching from URL:', url);
+    
+    fetch(url)
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+            
+            // Generate the HTML for each task row
+            if (!data.tasks || data.tasks.length === 0) {
+                console.log('No tasks found in response');
+                document.getElementById('taskTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center">No tasks found for this project</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            console.log('Number of tasks:', data.tasks.length);
+            
+            const tasksHtml = data.tasks.map(task => {
+                // Determine status class
+                let statusClass = 'new';
+                if (task.Status) {
+                    const status = task.Status.toLowerCase();
+                    if (status === 'completed') statusClass = 'complete';
+                    else if (status === 'ongoing') statusClass = 'ongoing';
+                    else if (status === 'for review') statusClass = 'review';
+                    else if (status === 'cancelled') statusClass = 'cancelled';
+                }
+                
+                return `
+                    <tr data-task-id="${task.TaskID}">
+                        <td>${task.Task_Name || 'Unnamed Task'}</td>
+                        <td>${task.Description || ''}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${task.Status || 'New'}</span>
+                        </td>
+                        <td>${task.Completion_percentage || 0}%</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('taskTableBody').innerHTML = tasksHtml;
+        })
+        .catch(error => {
+            console.error('Error fetching tasks:', error);
+            document.getElementById('taskTableBody').innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Error loading tasks: ${error.message}</p>
+                    </td>
+                </tr>
+            `;
+        });
+}
+</script>
+
 <%- contentFor('body') %>
 
 <div class="content">
@@ -128,7 +210,7 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="/project-details/<%= project.ProjectID %>" class="btn-report" title="View Detailed Report">
+                                <a href="/project-details/<%= project.ProjectID %>" class="btn-report" title="View Project Details">
                                     <i class="fas fa-file-alt"></i>
                                 </a>
                             </td>
@@ -143,5 +225,44 @@
         </table>
     </div>
 </div>
+
+<!-- Project Tasks Modal -->
+<div class="modal" id="projectTasksModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="projectTasksTitle">Project Tasks</h3>
+            <button class="close-modal" onclick="document.getElementById('projectTasksModal').style.display = 'none'; document.getElementById('modalOverlay').style.display = 'none';">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="task-section">
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskTableBody">
+                        <!-- Tasks will be loaded here dynamically -->
+                        <tr>
+                            <td colspan="4" class="text-center">Loading tasks...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('projectTasksModal').style.display = 'none'; document.getElementById('modalOverlay').style.display = 'none';">Close</button>
+            <a id="viewProjectDetailsLink" href="#" class="btn-primary">
+                <i class="fas fa-external-link-alt"></i> View Full Project Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay" onclick="document.getElementById('projectTasksModal').style.display = 'none'; document.getElementById('modalOverlay').style.display = 'none';"></div>
 
 
