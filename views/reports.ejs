@@ -1,0 +1,147 @@
+<%- contentFor('head') %>
+<link rel="stylesheet" href="/css/reports.css">
+<script src="/js/reports.js" defer></script>
+
+<%- contentFor('body') %>
+
+<div class="content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Reports</h1>
+            <p class="subtitle">View project progress and completion status</p>
+        </div>
+        <div class="header-actions">
+            <a href="/reports/export-csv" class="btn-primary">
+                <i class="fas fa-file-csv"></i> Export to CSV
+            </a>
+        </div>
+    </div>
+
+    <% if (error) { %>
+    <div class="alert alert-danger">
+        <%= error %>
+    </div>
+    <% } %>
+
+    <!-- Projects Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>
+                        <a href="/reports?sort=Project_Type&order=<%= sortOrder === 'ASC' && sortColumn === 'Project_Type' ? 'DESC' : 'ASC' %>" class="sort-header <%= sortColumn === 'Project_Type' ? 'active' : '' %>">
+                            Type 
+                            <i class="fas <%= sortColumn === 'Project_Type' ? (sortOrder === 'ASC' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort' %>"></i>
+                        </a>
+                    </th>
+                    <th>Details</th>
+                    <th>
+                        <a href="/reports?sort=Date&order=<%= sortOrder === 'ASC' && sortColumn === 'Date' ? 'DESC' : 'ASC' %>" class="sort-header <%= sortColumn === 'Date' ? 'active' : '' %>">
+                            Accreditation Date
+                            <i class="fas <%= sortColumn === 'Date' ? (sortOrder === 'ASC' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort' %>"></i>
+                        </a>
+                    </th>
+                    <th>Ageing (Days)</th>
+                    <th>
+                        <a href="/reports?sort=Status&order=<%= sortOrder === 'ASC' && sortColumn === 'Status' ? 'DESC' : 'ASC' %>" class="sort-header <%= sortColumn === 'Status' ? 'active' : '' %>">
+                            Status
+                            <i class="fas <%= sortColumn === 'Status' ? (sortOrder === 'ASC' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort' %>"></i>
+                        </a>
+                    </th>
+                    <th>Completion %</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (locals.projects && projects.length > 0) { %>
+                    <% projects.forEach(function(project) { %>
+                        <tr style="line-height: 1.2; height: auto;">
+                            <td><%= project.Project_Name || 'Untitled' %></td>
+                            <td><%= project.Project_Type || 'N/A' %></td>
+                            <td><%= project.Details || 'No details available' %></td>
+                            <td><%= project.Date ? new Date(project.Date).toLocaleDateString() : 'Not set' %></td>
+                            <td>
+                                <% 
+                                    let ageingDays = 0;
+                                    let ageingClass = '';
+                                    
+                                    if (project.Date) {
+                                        const today = new Date();
+                                        const accreditationDate = new Date(project.Date);
+                                        const timeDiff = accreditationDate - today;
+                                        ageingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                                        
+                                        if (ageingDays < 0) {
+                                            ageingClass = 'ageing-overdue';
+                                        } else if (ageingDays <= 30) {
+                                            ageingClass = 'ageing-critical';
+                                        } else if (ageingDays <= 90) {
+                                            ageingClass = 'ageing-warning';
+                                        } else {
+                                            ageingClass = 'ageing-good';
+                                        }
+                                    }
+                                %>
+                                <% if (project.Date) { %>
+                                    <span class="<%= ageingClass %>">
+                                        <%= ageingDays %> <%= ageingDays === 1 ? 'day' : 'days' %>
+                                        <% if (ageingDays < 0) { %>
+                                            overdue
+                                        <% } %>
+                                    </span>
+                                <% } else { %>
+                                    <span class="ageing-na">N/A</span>
+                                <% } %>
+                            </td>
+                            <td><span class="status-badge <%= (project.Status || 'pending').toLowerCase().replace(' ', '-') %>"><%= project.Status || 'Pending' %></span></td>
+                            <td>
+                                <% 
+                                    const percentage = parseFloat(project.Completion_Percentage || 0);
+                                    let badgeClass = 'pending';
+                                    if (percentage >= 100) badgeClass = 'completed';
+                                    else if (percentage >= 75) badgeClass = 'almost-complete';
+                                    else if (percentage >= 50) badgeClass = 'halfway';
+                                    else if (percentage > 0) badgeClass = 'started';
+                                %>
+                                <div class="progress-container">
+                                    <% 
+                                        let barColor = '#e0e0e0';
+                                        let barClass = 'progress-bar-pending';
+                                        
+                                        if (percentage >= 100) {
+                                            barColor = '#4CAF50';
+                                            barClass = 'progress-bar-complete';
+                                        } else if (percentage >= 75) {
+                                            barColor = '#00BCD4';
+                                            barClass = 'progress-bar-almost';
+                                        } else if (percentage >= 50) {
+                                            barColor = '#2196F3';
+                                            barClass = 'progress-bar-half';
+                                        } else if (percentage > 0) {
+                                            barColor = '#FF9800';
+                                            barClass = 'progress-bar-started';
+                                        }
+                                    %>
+                                    <div class="progress-bar <%= barClass %>" style="width: <%= percentage %>%;"></div>
+                                    <span class="progress-text"><%= project.Completion_Percentage %>%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="/project-details/<%= project.ProjectID %>" class="btn-report" title="View Detailed Report">
+                                    <i class="fas fa-file-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center">No projects found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
