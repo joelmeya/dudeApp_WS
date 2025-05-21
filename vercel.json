@@ -28,11 +28,13 @@
     },
     {
       "src": "/reports",
-      "dest": "/server.js"
+      "dest": "/server.js",
+      "methods": ["GET"]
     },
     {
       "src": "/reports/(.*)",
-      "dest": "/server.js"
+      "dest": "/server.js",
+      "methods": ["GET"]
     },
     {
       "handle": "filesystem"

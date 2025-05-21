@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import apiRoutes from './routes/apiRoutes.js';
 import projectDetailsRoutes from './routes/projectDetailsRoutes.js';
 import accreditorRoutes from './routes/accreditorRoutes.js';
+import reportsRoutes from './routes/reportsRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -152,6 +153,16 @@ app.use('/users', userRoutes);
 app.use('/api', apiRoutes);
 app.use('/accreditor', accreditorRoutes);
 app.use('/project-details', projectDetailsRoutes);
+
+// Reports route - ensure it's properly registered for Vercel
+app.use('/reports', reportsRoutes);
+
+// Explicit route for Reports page to fix Vercel routing issues
+app.get('/reports', (req, res, next) => {
+  // This is a fallback in case the regular route doesn't work in Vercel
+  // It will pass control to the reports router
+  reportsRoutes(req, res, next);
+});
 
 // Root Route
 app.get('/', (req, res) => {
