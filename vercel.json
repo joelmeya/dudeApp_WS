@@ -27,6 +27,14 @@
       "headers": { "cache-control": "public, max-age=86400" }
     },
     {
+      "src": "/reports",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/reports/(.*)",
+      "dest": "/server.js"
+    },
+    {
       "handle": "filesystem"
     },
     {
