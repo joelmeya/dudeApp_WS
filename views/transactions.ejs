@@ -1,0 +1,178 @@
+<%- contentFor('head') %>
+<link rel="stylesheet" href="/css/transactions.css">
+
+<%- contentFor('body') %>
+<div class="content">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Transactions</h1>
+            <p class="subtitle">View transaction history and details</p>
+        </div>
+    </div>
+
+    <div class="actions-bar">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" placeholder="Search transactions by ID, user, or institution..." id="searchTransactions">
+                <button class="search-btn" title="Search"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="filter-section">
+            <label for="filterTransactionType">Filter by:</label>
+            <select id="filterTransactionType" class="filter-select">
+                <option value="">All Transaction Types</option>
+                <option value="ISO">ISO Documents</option>
+                <option value="RBAC">RBAC Transactions</option>
+                <option value="Example">Example Documents</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="card-container">
+        <div class="card">
+            <div class="card-header">
+                <h3>Transaction History</h3>
+            </div>
+            <div class="card-body">
+                            <div class="transaction-timeline">
+                                <!-- Transaction Item 1 -->
+                                <div class="transaction-item">
+                                    <div class="transaction-marker">
+                                        <div class="transaction-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-content">
+                                        <div class="transaction-header">
+                                            <h3>ISO</h3>
+                                            <span class="block-number">#237</span>
+                                        </div>
+                                        <div class="transaction-hash" title="Block hash">
+                                            0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069
+                                        </div>
+                                        <div class="transaction-body">
+                                            <p><strong>ID:</strong> 237</p>
+                                            <p><strong>User:</strong> Lester Cuadra</p>
+                                            <p><strong>Role:</strong> Document Admin</p>
+                                            <p><strong>Institution:</strong> International Organization for Standardization</p>
+                                            <p><strong>Document Uri:</strong> <a href="#">Url</a></p>
+                                            <p><strong>Previous Transaction Signature:</strong> <a href="#">Signature</a></p>
+                                            <p><strong>Timestamp:</strong> <span class="timestamp">2025-05-20 14:32:17</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction Item 2 -->
+                                <div class="transaction-item">
+                                    <div class="transaction-marker">
+                                        <div class="transaction-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-content">
+                                        <div class="transaction-header">
+                                            <h3>Example Type 2</h3>
+                                            <span class="block-number">#236</span>
+                                        </div>
+                                        <div class="transaction-hash" title="Block hash">
+                                            0x3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea
+                                        </div>
+                                        <div class="transaction-body">
+                                            <p><strong>ID:</strong> 236</p>
+                                            <p><strong>User:</strong> Lester Cuadra</p>
+                                            <p><strong>Role:</strong> Document Admin</p>
+                                            <p><strong>Institution:</strong> Example Institution 2</p>
+                                            <p><strong>Document Uri:</strong> <a href="#">Url</a></p>
+                                            <p><strong>Previous Transaction Signature:</strong> <a href="#">Signature</a></p>
+                                            <p><strong>Timestamp:</strong> <span class="timestamp">2025-05-20 13:45:09</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction Item 3 -->
+                                <div class="transaction-item">
+                                    <div class="transaction-marker">
+                                        <div class="transaction-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-content">
+                                        <div class="transaction-header">
+                                            <h3>ISO Project</h3>
+                                            <span class="block-number">#235</span>
+                                        </div>
+                                        <div class="transaction-hash" title="Block hash">
+                                            0x5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+                                        </div>
+                                        <div class="transaction-body">
+                                            <p><strong>ID:</strong> 235</p>
+                                            <p><strong>User:</strong> Lester Cuadra</p>
+                                            <p><strong>Role:</strong> Document Admin</p>
+                                            <p><strong>Institution:</strong> International Organization for Standardization</p>
+                                            <p><strong>Document Uri:</strong> <a href="#">Url</a></p>
+                                            <p><strong>Previous Transaction Signature:</strong> <a href="#">Signature</a></p>
+                                            <p><strong>Timestamp:</strong> <span class="timestamp">2025-05-20 11:27:33</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction Item 4 -->
+                                <div class="transaction-item">
+                                    <div class="transaction-marker">
+                                        <div class="transaction-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-content">
+                                        <div class="transaction-header">
+                                            <h3>RBAC Test</h3>
+                                            <span class="block-number">#234</span>
+                                        </div>
+                                        <div class="transaction-hash" title="Block hash">
+                                            0x8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+                                        </div>
+                                        <div class="transaction-body">
+                                            <p><strong>ID:</strong> 234</p>
+                                            <p><strong>User:</strong> Lester Cuadra</p>
+                                            <p><strong>Role:</strong> Document Admin</p>
+                                            <p><strong>Institution:</strong> International Organization for Standardization</p>
+                                            <p><strong>Document Uri:</strong> <a href="#">Url</a></p>
+                                            <p><strong>Previous Transaction Signature:</strong> <a href="#">Signature</a></p>
+                                            <p><strong>Timestamp:</strong> <span class="timestamp">2025-05-20 09:14:22</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction Item 5 -->
+                                <div class="transaction-item">
+                                    <div class="transaction-marker">
+                                        <div class="transaction-icon">
+                                            <i class="fas fa-cube"></i>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-content">
+                                        <div class="transaction-header">
+                                            <h3>RBAC Test 2</h3>
+                                            <span class="block-number">#233</span>
+                                        </div>
+                                        <div class="transaction-hash" title="Block hash">
+                                            0x1c3a5357960345b68c9b6e08d3d4673b6ba3ada1d9b0782c1a33ee3f6abe6a69
+                                        </div>
+                                        <div class="transaction-body">
+                                            <p><strong>ID:</strong> 233</p>
+                                            <p><strong>User:</strong> Lester Cuadra</p>
+                                            <p><strong>Role:</strong> Document Admin</p>
+                                            <p><strong>Institution:</strong> Example Institution 2</p>
+                                            <p><strong>Document Uri:</strong> <a href="#">Url</a></p>
+                                            <p><strong>Previous Transaction Signature:</strong> <a href="#">Signature</a></p>
+                                            <p><strong>Timestamp:</strong> <span class="timestamp">2025-05-20 08:03:41</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
