@@ -12,8 +12,18 @@ import projectDetailsRoutes from './routes/projectDetailsRoutes.js';
 import accreditorRoutes from './routes/accreditorRoutes.js';
 import reportsRoutes from './routes/reportsRoutes.js';
 import transactionsRoutes from './routes/transactionsRoutes.js';
-import testLoggingRoutes from './routes/testLoggingRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+
+// Conditionally import test routes only in development environment
+let testLoggingRoutes = null;
+try {
+  if (process.env.NODE_ENV !== 'production') {
+    const testRoutesModule = await import('./routes/testLoggingRoutes.js');
+    testLoggingRoutes = testRoutesModule.default;
+  }
+} catch (error) {
+  console.log('Test logging routes not available, skipping import');
+}
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -163,8 +173,11 @@ app.use('/reports', reportsRoutes);
 // Transactions route
 app.use('/transactions', transactionsRoutes);
 
-// Test logging routes
-app.use('/test-logs', testLoggingRoutes);
+// Test logging routes - only register if available in this environment
+if (testLoggingRoutes) {
+  app.use('/test-logs', testLoggingRoutes);
+  console.log('Test logging routes registered');
+}
 
 // Dashboard data routes
 app.use('/dashboard', dashboardRoutes);
