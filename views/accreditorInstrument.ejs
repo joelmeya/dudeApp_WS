@@ -38,8 +38,8 @@
     </div>
     
     <!-- Frames container -->
-    <div class="frames-container">
-        <div class="frame-section">
+    <div class="frames-container" id="resizableFrames">
+        <div class="frame-section" id="evidenceSection">
             <div class="frame-header">
                 <h2>Evidence</h2>
             </div>
@@ -47,7 +47,9 @@
                 <iframe id="evidenceFrame" src="<%= locals.evidenceUrl || '/static/evidence-placeholder.html' %>" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
-        <div class="frame-section">
+        <!-- Resizable divider -->
+        <div class="resize-divider" id="resizeDivider" title="Drag to resize"></div>
+        <div class="frame-section" id="instrumentSection">
             <div class="frame-header">
                 <h2>Instrument</h2>
             </div>

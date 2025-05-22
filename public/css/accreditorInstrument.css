@@ -121,17 +121,43 @@ select.form-control option {
     flex: 1;
     position: relative;
     z-index: 1;
+    overflow: hidden; /* Prevent overflow during resize */
 }
 
 .frame-section {
     flex: 1;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #eee;
+    min-width: 200px; /* Minimum width to prevent sections from becoming too small */
+    position: relative; /* For positioning the resize handle */
 }
 
-.frame-section:last-child {
-    border-right: none;
+/* Resizable divider styles */
+.resize-divider {
+    width: 8px;
+    background-color: #f0f0f0;
+    cursor: col-resize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.resize-divider:hover, .resize-divider.active {
+    background-color: #d0d0d0;
+}
+
+.resize-divider::after {
+    content: '';
+    height: 30px;
+    width: 2px;
+    background-color: #aaa;
+    border-radius: 1px;
+}
+
+.resize-divider:hover::after, .resize-divider.active::after {
+    background-color: #666;
 }
 
 .frame-header {
@@ -172,6 +198,18 @@ iframe {
 @media (max-width: 992px) {
     .frames-container {
         flex-direction: column;
+    }
+    
+    /* Change divider to horizontal for mobile view */
+    .resize-divider {
+        width: 100%;
+        height: 8px;
+        cursor: row-resize;
+    }
+    
+    .resize-divider::after {
+        height: 2px;
+        width: 30px;
     }
     
     .top-controls-bar {
