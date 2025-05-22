@@ -12,6 +12,8 @@ import projectDetailsRoutes from './routes/projectDetailsRoutes.js';
 import accreditorRoutes from './routes/accreditorRoutes.js';
 import reportsRoutes from './routes/reportsRoutes.js';
 import transactionsRoutes from './routes/transactionsRoutes.js';
+import testLoggingRoutes from './routes/testLoggingRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sql from 'mssql';
@@ -160,6 +162,12 @@ app.use('/reports', reportsRoutes);
 
 // Transactions route
 app.use('/transactions', transactionsRoutes);
+
+// Test logging routes
+app.use('/test-logs', testLoggingRoutes);
+
+// Dashboard data routes
+app.use('/dashboard', dashboardRoutes);
 
 // Explicit route for Reports page to fix Vercel routing issues
 app.get('/reports', (req, res, next) => {
