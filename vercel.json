@@ -27,6 +27,11 @@
       "headers": { "cache-control": "public, max-age=86400" }
     },
     {
+      "src": "/dashboard/data",
+      "dest": "/server.js",
+      "methods": ["GET"]
+    },
+    {
       "src": "/reports",
       "dest": "/server.js",
       "methods": ["GET"]

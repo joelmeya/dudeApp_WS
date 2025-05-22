@@ -146,24 +146,48 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchDashboardData();
   }
   
-  // Fetch dashboard data from API
+  // Fetch dashboard data from API with enhanced error handling for Vercel
   function fetchDashboardData() {
-    fetch('/dashboard/data')
+    // Add a timeout to prevent hanging in serverless environments
+    const fetchPromise = fetch('/dashboard/data');
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Request timed out')), 8000)
+    );
+    
+    Promise.race([fetchPromise, timeoutPromise])
       .then(response => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          // For Vercel serverless functions, provide more helpful error message
+          if (response.status === 500 || response.status === 504) {
+            throw new Error('Server temporarily unavailable. This is normal during cold starts.');
+          }
+          throw new Error('Network response was not ok: ' + response.status);
         }
         return response.json();
       })
       .then(data => {
+        // Check if data has expected structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data format received');
+        }
         updateDashboard(data);
       })
       .catch(error => {
         console.error('Error fetching dashboard data:', error);
+        // Show a more user-friendly error message
+        const errorMessage = error.message.includes('cold starts') 
+          ? 'Dashboard data is loading. This may take a moment on first load...' 
+          : 'Unable to load dashboard data. Please try again later.';
+        
         document.querySelectorAll('.loading-indicator').forEach(el => {
-          el.textContent = 'Error loading data. Please refresh the page.';
-          el.style.color = '#e53935';
+          el.textContent = errorMessage;
+          el.style.color = error.message.includes('cold starts') ? '#fb8c00' : '#e53935';
         });
+        
+        // For cold start issues, retry after a delay
+        if (error.message.includes('cold starts') || error.message.includes('timed out')) {
+          setTimeout(fetchDashboardData, 5000);
+        }
       });
   }
   
@@ -194,55 +218,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Create project status chart
+  // Create project status chart with enhanced error handling
   function createProjectChart(projectStats) {
-    const chartContainer = document.getElementById('project-stats-loading');
-    if (chartContainer) {
-      chartContainer.style.display = 'none';
-    }
-    
-    const ctx = document.getElementById('projectStatusChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['New', 'For Review', 'Ongoing', 'Completed'],
-        datasets: [{
-          data: [
-            projectStats.newProjects || 0,
-            projectStats.reviewProjects || 0,
-            projectStats.ongoingProjects || 0,
-            projectStats.completedProjects || 0
-          ],
-          backgroundColor: [
-            '#42a5f5', // blue for new
-            '#ffca28', // amber for review
-            '#66bb6a', // green for ongoing
-            '#78909c'  // blue-grey for completed
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const label = context.label || '';
-                const value = context.raw || 0;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = Math.round((value / total) * 100);
-                return `${label}: ${value} (${percentage}%)`;
+    try {
+      const chartContainer = document.getElementById('project-stats-loading');
+      if (chartContainer) {
+        chartContainer.style.display = 'none';
+      }
+      
+      const canvas = document.getElementById('projectStatusChart');
+      if (!canvas) {
+        console.error('Chart canvas element not found');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      
+      // Ensure we have valid data
+      const stats = projectStats || {
+        newProjects: 0,
+        reviewProjects: 0,
+        ongoingProjects: 0,
+        completedProjects: 0
+      };
+      
+      // Extract data with fallbacks
+      const data = [
+        parseInt(stats.newProjects) || 0,
+        parseInt(stats.reviewProjects) || 0,
+        parseInt(stats.ongoingProjects) || 0,
+        parseInt(stats.completedProjects) || 0
+      ];
+      
+      // Check if all values are zero
+      const allZero = data.every(val => val === 0);
+      
+      // If all values are zero, show placeholder data
+      const displayData = allZero ? [1, 1, 1, 1] : data;
+      
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['New', 'For Review', 'Ongoing', 'Completed'],
+          datasets: [{
+            data: displayData,
+            backgroundColor: [
+              '#42a5f5', // blue for new
+              '#ffca28', // amber for review
+              '#66bb6a', // green for ongoing
+              '#78909c'  // blue-grey for completed
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = allZero ? 0 : (context.raw || 0);
+                  const total = allZero ? 0 : context.dataset.data.reduce((a, b) => a + b, 0);
+                  
+                  if (allZero) {
+                    return `${label}: No data available`;
+                  }
+                  
+                  const percentage = total === 0 ? 0 : Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
               }
             }
           }
         }
+      });
+    } catch (chartError) {
+      console.error('Error creating project chart:', chartError);
+      const chartContainer = document.getElementById('project-stats-loading');
+      if (chartContainer) {
+        chartContainer.textContent = 'Unable to display chart. Please try again later.';
+        chartContainer.style.display = 'block';
+        chartContainer.style.color = '#e53935';
       }
-    });
+    }
   }
   
   // Update recent activity list
