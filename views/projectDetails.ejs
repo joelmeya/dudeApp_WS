@@ -1,5 +1,5 @@
 <%- contentFor('body') %>
-<div class="project-details-content">
+<div class="project-details-content" data-user-role="<%= user ? user.role : '' %>">
     <div class="page-header">
         <div class="header-content">
             <h1>Document Management</h1>
@@ -86,7 +86,9 @@
                 <!-- Document URL section removed as requested -->
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-save">SAVE CHANGES</button>
+                    <% if (user && user.role && !['admin_assistant', 'document_reviewer'].includes(user.role.toLowerCase())) { %>
+                        <button type="submit" class="btn-save">SAVE CHANGES</button>
+                    <% } %>
                 </div>
             </form>
         </div>
@@ -206,19 +208,47 @@
                                     <div class="form-group">
                                         <label for="assignedUsers">Assigned Users</label>
                                         <div class="assigned-users-container">
-                                            <div class="select-wrapper">
-                                                <select id="assignedUsersDropdown" class="form-control">
-                                                    <option value="" disabled selected>Select a user</option>
-                                                    <% if (typeof users !== 'undefined' && users && users.length > 0) { %>
-                                                        <% users.forEach(function(user) { %>
-                                                            <option value="<%= user.id %>"><%= user.name %> (<%= user.role %>)</option>
-                                                        <% }); %>
-                                                    <% } %>
-                                                </select>
-                                                <button type="button" class="btn-sm btn-primary" id="addAssignedUser">
-                                                    <i class="fas fa-plus"></i> Add
-                                                </button>
-                                            </div>
+                                            <% if (user && user.role && !['admin_assistant', 'document_reviewer'].includes(user.role.toLowerCase())) { %>
+                                                <div class="select-wrapper">
+                                                    <select id="assignedUsersDropdown" class="form-control">
+                                                        <option value="" disabled selected>Select a user</option>
+                                                        <% if (typeof users !== 'undefined' && users && users.length > 0) { %>
+                                                            <% 
+                                                                // Calculate project percentage for accreditor filtering
+                                                                let projectTotalPercentage = 0;
+                                                                let projectTaskCount = 0;
+                                                                
+                                                                if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) {
+                                                                    tasks.forEach(function(task) {
+                                                                        const percentage = task.Completion_percentage || 0;
+                                                                        projectTotalPercentage += percentage;
+                                                                        projectTaskCount++;
+                                                                    });
+                                                                }
+                                                                
+                                                                const projectAvgPercentage = projectTaskCount > 0 ? (projectTotalPercentage / projectTaskCount).toFixed(2) : 0;
+                                                                const isProjectComplete = projectAvgPercentage >= 100;
+                                                            %>
+                                                            <% users.forEach(function(userItem) { %>
+                                                                <% 
+                                                                    // Only show accreditors if project is 100% complete
+                                                                    const isAccreditor = userItem.role && userItem.role.toLowerCase() === 'accreditor';
+                                                                    if (!isAccreditor || (isAccreditor && isProjectComplete)) { 
+                                                                %>
+                                                                    <option value="<%= userItem.id %>"><%= userItem.name %> (<%= userItem.role %>)</option>
+                                                                <% } %>
+                                                            <% }); %>
+                                                        <% } %>
+                                                    </select>
+                                                    <button type="button" class="btn-sm btn-primary" id="addAssignedUser">
+                                                        <i class="fas fa-plus"></i> Add
+                                                    </button>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="view-only-message">
+                                                    <small class="text-muted">View-only access: You cannot add or remove users</small>
+                                                </div>
+                                            <% } %>
                                             
                                             <div class="assigned-users-list">
                                                 <ul id="assignedUsersList">
@@ -358,6 +388,20 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeTaskModal()"></div>
 
 <style>
+    /* View-only message styling */
+    .view-only-message {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+    }
+    
+    .view-only-message .text-muted {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
     /* Task Description Styles */
     .task-details-content .form-group label {
         font-size: 12px;
@@ -404,3 +448,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Include project details JavaScript -->
 <script src="/js/projectDetails.js"></script>
+<script src="/js/userManagement.js"></script>

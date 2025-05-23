@@ -51,9 +51,11 @@
             <p class="subtitle">Manage accreditation projects and related documentation</p>
         </div>
         <div class="header-actions">
-            <button class="btn-primary new-project-btn" id="newProjectBtnUnique" onclick="document.getElementById('newProjectModalUnique').style.display='block';">
-                NEW PROJECT
-            </button>
+            <% if (user && user.role && !['admin_assistant', 'document_reviewer'].includes(user.role.toLowerCase())) { %>
+                <button class="btn-primary new-project-btn" id="newProjectBtnUnique" onclick="document.getElementById('newProjectModalUnique').style.display='block';">
+                    NEW PROJECT
+                </button>
+            <% } %>
         </div>
     </div>
     
@@ -143,6 +145,33 @@
     overflow-x: auto;
     position: relative;
     margin-left: 0;
+}
+
+.header-actions {
+    position: relative;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 220px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+}
+
+.header-actions:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
 
 .page-header {

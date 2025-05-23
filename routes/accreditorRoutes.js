@@ -14,11 +14,15 @@ router.get('/', requireLogin, async (req, res) => {
         // We'll keep this comment as a reminder that in production, we might want to restrict access
         // to only accreditors, document reviewers, and system admins
         
-        // Fetch projects for review - UI only for now, no actual filtering by accreditor
-        // This is a placeholder query that will be replaced with actual logic later
+        // Fetch only COMPLETED projects for accreditor review
         const pool = await sql.connect();
         const result = await pool.request()
-            .query(`SELECT * FROM Projects ORDER BY Created_AT DESC`);
+            .query(`
+                SELECT * 
+                FROM Projects 
+                WHERE Status = 'COMPLETED' 
+                ORDER BY Created_AT DESC
+            `);
         
         // Render the accreditor view page with projects
         res.render('accreditorView', {
