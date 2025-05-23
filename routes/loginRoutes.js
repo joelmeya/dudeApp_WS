@@ -76,12 +76,14 @@ router.post('/', async (req, res) => {
 
     // Set session
     console.log('Setting up user session...');
+    console.log('User data from database:', user);
     req.session.user = {
       email: email,
       name: user.Name || user.FullName,
       role: user.role || 'User',
       fullName: user.FullName
     };
+    console.log('Session user created with role:', req.session.user.role);
 
     // Save session explicitly
     await new Promise((resolve, reject) => {
@@ -99,10 +101,24 @@ router.post('/', async (req, res) => {
     console.log('Login Session Set:', req.session.user);
     console.log('Session ID:', req.session.id);
 
+    // Determine redirect URL based on user role
+    console.log('User role for redirect:', user.role);
+    // Determine redirect URL based on role (case insensitive)
+    const userRoleLower = user.role ? user.role.toLowerCase() : '';
+    let redirectUrl = '/dashboard';
+    
+    if (userRoleLower === 'accreditor') {
+      redirectUrl = '/accreditor';
+    } else if (userRoleLower === 'admin_assistant') {
+      redirectUrl = '/documents';
+    }
+    console.log('User role (lowercase):', userRoleLower);
+    console.log('Redirect URL determined:', redirectUrl);
+    
     return res.json({
       message: 'Login successful',
       user: req.session.user,
-      redirectUrl: '/dashboard',
+      redirectUrl: redirectUrl,
       sessionId: req.session.id
     });
   } catch (err) {

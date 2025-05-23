@@ -49,13 +49,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('userRole', data.user?.role || '');
                     localStorage.setItem('loginTimestamp', Date.now().toString());
                     
-                    console.log('Login successful, redirecting to:', data.redirectUrl || '/dashboard');
+                    console.log('Login successful, server response:', data);
+                    console.log('User role from server:', data.user?.role);
+                    console.log('Redirect URL from server:', data.redirectUrl);
+                    
+                    // Determine redirect URL based on user role
+                    let redirectUrl = data.redirectUrl || '/dashboard';
+                    
+                    // Force accreditor users to the accreditor page
+                    const userRole = data.user?.role?.toLowerCase();
+                    if (userRole === 'accreditor') {
+                        redirectUrl = '/accreditor';
+                        console.log('Client-side override: Redirecting Accreditor to /accreditor');
+                    }
                     
                     // Add a special parameter to the URL to prevent redirect loops
-                    const redirectUrl = (data.redirectUrl || '/dashboard') + '?auth=' + Date.now();
+                    redirectUrl = redirectUrl + '?auth=' + Date.now();
+                    console.log('Final redirect URL:', redirectUrl);
                     
                     // Use a more direct approach to redirect
                     setTimeout(() => {
+                        console.log('Executing redirect to:', redirectUrl);
                         window.location.replace(redirectUrl);
                     }, 500);
                 } else {

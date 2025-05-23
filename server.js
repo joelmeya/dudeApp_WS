@@ -98,6 +98,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add middleware to redirect users based on role
+app.use((req, res, next) => {
+  // Only apply this middleware to dashboard route
+  if (req.path === '/dashboard' && req.session && req.session.user && req.session.user.role) {
+    const userRole = req.session.user.role.toLowerCase();
+    console.log('Role-based redirect check - Path:', req.path, 'Role:', userRole);
+    
+    if (userRole === 'accreditor') {
+      console.log('Redirecting Accreditor from dashboard to /accreditor');
+      return res.redirect('/accreditor');
+    }
+    
+    if (userRole === 'admin_assistant') {
+      console.log('Redirecting Admin Assistant from dashboard to /documents');
+      return res.redirect('/documents');
+    }
+  }
+  next();
+});
+
 // Configure static file serving
 const staticOptions = {
   maxAge: '1d',
@@ -255,7 +275,14 @@ app.get('/dashboard', async (req, res) => {
         }
       : req.session.user;
 
-    // Render dashboard with user data
+    // For Accreditor role, redirect to accreditor page instead of dashboard
+    console.log('Dashboard route - User role:', user.role);
+    if (user.role === 'Accreditor' || user.role === 'accreditor') {
+      console.log('Redirecting Accreditor to /accreditor');
+      return res.redirect('/accreditor');
+    }
+    
+    // Render dashboard with user data for all other roles
     res.render('dashboard', {
       user: user,
       page: 'dashboard'
