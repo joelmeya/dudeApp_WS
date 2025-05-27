@@ -111,6 +111,7 @@ router.get('/:id', requireLogin, async (req, res) => {
                 Completion_percentage
             FROM Tasks
             WHERE ProjectID = ${projectId}
+            AND Task_Name like '%AREA%'
             ORDER BY Task_id ASC
         `;
         
